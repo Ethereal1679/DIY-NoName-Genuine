@@ -2503,11 +2503,20 @@ export class Game {
 
 		const audio = document.createElement("audio");
 		audio.volume = lib.config.volumn_audio / 8;
+		// Start loading as soon as the element is attached so effects do not wait
+		// for the autoplay fallback handler before requesting their source.
+		audio.preload = "auto";
+		audio.setAttribute("playsinline", "");
 		audio.autoplay = true;
+		let canPlayNotified = false;
 
 		audio.oncanplay = ev => {
 			//Some browsers do not support "autoplay", so "oncanplay" listening has been added
-			Promise.resolve(audio.play()).catch(e => console.error(e));
+			Promise.resolve(audio.play()).catch(() => void 0);
+			if (canPlayNotified) {
+				return;
+			}
+			canPlayNotified = true;
 			if (_status.video || game.online) {
 				return;
 			}
@@ -2554,6 +2563,9 @@ export class Game {
 
 			audio.src = resolvedPath;
 			ui.window.appendChild(audio);
+			// Calling play immediately lets the browser begin playback as soon as a
+			// frame is available instead of waiting for a later autoplay retry.
+			Promise.resolve(audio.play()).catch(() => void 0);
 		});
 
 		return audio;
@@ -2722,6 +2734,8 @@ export class Game {
 		var str = "audio/skill/";
 		var audio = document.createElement("audio");
 		audio.autoplay = true;
+		audio.preload = "auto";
+		audio.setAttribute("playsinline", "");
 		audio.volume = lib.config.volumn_audio / 8;
 		audio.src = lib.assetURL + str + name + ".mp3";
 		audio.addEventListener("ended", function () {
@@ -2758,6 +2772,7 @@ export class Game {
 			Promise.resolve(this.play()).catch(() => void 0);
 		};
 		ui.window.appendChild(audio);
+		Promise.resolve(audio.play()).catch(() => void 0);
 	}
 	/**
 	 * @param { string | Card } card

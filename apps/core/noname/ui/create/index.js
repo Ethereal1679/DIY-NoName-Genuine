@@ -2427,10 +2427,12 @@ export class Create {
 		ui.arena.dataset.target_shake = lib.config.target_shake || "off";
 		ui.backgroundMusic = document.createElement("audio");
 		ui.backgroundMusic.volume = lib.config.volumn_background / 8;
-		game.playBackgroundMusic();
+		ui.backgroundMusic.preload = "auto";
+		ui.backgroundMusic.setAttribute("playsinline", "");
 		ui.backgroundMusic.autoplay = true;
 		ui.backgroundMusic.addEventListener("ended", game.playBackgroundMusic);
 		ui.window.appendChild(ui.backgroundMusic);
+		game.playBackgroundMusic();
 		ui.window.addEventListener(
 			lib.config.touchscreen ? "touchend" : "click",
 			() => {

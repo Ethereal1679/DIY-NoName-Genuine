@@ -4,6 +4,9 @@
     "type": "module",
     "scripts": {
         "dev": "tsx scripts/dev.ts",
+        "setup:win": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/setup-and-start.ps1 -Mode Electron -InstallOnly",
+        "start:electron": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/setup-and-start.ps1 -Mode Electron",
+        "start:web": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/setup-and-start.ps1 -Mode Web",
         "build": "tsx scripts/build.ts",
         "init:extension": "tsx scripts/initExtension.ts",
         "serve": "pnpm -F @noname/fs dev --dirname=../../dist",

@@ -20,3 +20,4 @@ Thumbs.db
 
 # Skill for private use
 .agents/skills/*-selfuse
+.pnpm-store/*

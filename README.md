@@ -5,15 +5,23 @@ codebase来自：https://github.com/libnoname/noname 始终最新，社区依然
 # 配置
 先默认使用windows，后续再开发移动端和linux的兼容。
 
-# 安装
+# 安装&启动（开发者）
+默认已经安装了
+
 ```shell
+npm install --global pnpm
 pnpm install
 ```
 
-# 启动
+然后启动
 ```shell
 pnpm dev
 ```
+
+# 安装&启动（用户）
+
+一键运行：
+
 
 # 写在后面
 笔者也尝试在其他版本（比如https://github.com/lieren2023/noname-for-dummies）上进行修改，但是碍于该项目近些年作者没有维护，导致仍使用一些旧版本的兼容模式，导致新版本的手杀等
