@@ -7245,11 +7245,21 @@ ${e instanceof Error ? e.stack : String(e)}`);
 							ui.exit.firstChild.innerHTML = "返回房间";
 						}
 					});
+					game.send("server", "reset");
 					game.saveConfig("tmp_owner_roomId", game.roomId);
+					game.saveConfig("reconnect_info", [_status.ip, null, game.roomId]);
+					localStorage.setItem(lib.configprefix + "directstart", true);
 					setTimeout(game.reload, 100);
 				});
 			} else {
-				ui.restart = ui.create.control("restart", game.reload);
+				ui.restart = ui.create.control("restart", function () {
+					if (game.online && typeof game.roomId == "string") {
+						game.send("server", "reset");
+						game.saveConfig("tmp_user_roomId", game.roomId);
+						localStorage.setItem(lib.configprefix + "directstart", true);
+					}
+					setTimeout(game.reload, 100);
+				});
 			}
 		}
 		if (ui.tempnowuxie) {
@@ -7271,7 +7281,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		if (game.addRecord) {
 			game.addRecord(resultbool);
 		}
-		if (_status.connectMode && !game.online) {
+		if (_status.connectMode && !game.online && !game.onlineroom) {
 			setTimeout(game.reload, 15000);
 		}
 	}

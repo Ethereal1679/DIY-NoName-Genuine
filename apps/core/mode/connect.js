@@ -414,6 +414,13 @@ export default () => {
 					localStorage.setItem(lib.configprefix + "key", game.onlineKey);
 				}
 			}
+			const reconnect = lib.config.reconnect_info;
+			const pendingRoom = lib.config.tmp_owner_roomId || lib.config.tmp_user_roomId || reconnect?.[2];
+			if (!game.online && pendingRoom && reconnect?.[0]) {
+				ui.ipnode.value = normalizeEndpoint(reconnect[0]);
+				ui.ipnode.dispatchEvent(new Event("input"));
+				setTimeout(() => ui.ipbutton?.click(), 0);
+			}
 			_status.connectDenied = createNode;
 			setTimeout(lib.init.onfree, 1000);
 		},

@@ -21,8 +21,11 @@ interface Client extends WebSocket {
 interface Room {
 	key: string;
 	owner?: Client;
+	ownerNickname?: string;
+	ownerAvatar?: string;
 	config?: any;
 	servermode?: boolean;
+	ownerTimeout?: NodeJS.Timeout;
 }
 
 interface EventItem {
@@ -96,11 +99,17 @@ export function createServer(options: ServerOptions = {}): ServerInstance {
 				const count = clientCount.get(key) || 0;
 				if (room.servermode) {
 					roomList.push("server");
-				} else if (room.owner && room.config) {
-					if (count === 0) {
+				} else if (room.config && (room.owner || room.ownerNickname)) {
+					if (count === 0 && room.owner) {
 						util.sendl(room.owner, "reloadroom");
 					}
-					roomList.push([room.owner.nickname, room.owner.avatar, room.config, count, room.key]);
+					roomList.push([
+						room.owner?.nickname ?? room.ownerNickname ?? "无名玩家",
+						room.owner?.avatar ?? room.ownerAvatar ?? "caocao",
+						room.config,
+						count,
+						room.key,
+					]);
 				}
 			});
 
@@ -155,13 +164,38 @@ export function createServer(options: ServerOptions = {}): ServerInstance {
 			client.nickname = util.nickname(nickname);
 			client.avatar = avatar;
 
-			const room: Room = { key, owner: client };
-			rooms.set(key, room);
+			let room = rooms.get(key);
+			if (room?.owner && room.owner !== client) return util.sendl(client, "enterroomfailed");
+			if (!room) {
+				room = { key };
+				rooms.set(key, room);
+			}
+			clearTimeout(room.ownerTimeout);
+			delete room.ownerTimeout;
+			room.owner = client;
+			room.ownerNickname = client.nickname;
+			room.ownerAvatar = client.avatar;
 
 			client.room = room;
 			delete client.status;
 
 			util.sendl(client, "createroom", key);
+			// Reattach clients that stayed in the room while the owner refreshed.
+			clients.forEach(other => {
+				if (other !== client && other.room === room) {
+					other.owner = client;
+					util.sendl(client, "onconnection", other.wsid);
+				}
+			});
+			util.updateRooms();
+		},
+
+		reset(client: Client) {
+			const room = client.room;
+			if (!room || room.owner !== client) return;
+			if (room.config && typeof room.config === "object") {
+				room.config.gameStarted = false;
+			}
 			util.updateRooms();
 		},
 
@@ -174,7 +208,10 @@ export function createServer(options: ServerOptions = {}): ServerInstance {
 			client.room = room;
 			delete client.status;
 
-			if (!room.owner) return util.sendl(client, "enterroomfailed");
+			if (!room.owner) {
+				util.updateRooms();
+				return;
+			}
 
 			if (!room.config || (room.config.gameStarted && (!room.config.observe || !room.config.observeReady))) {
 				return util.sendl(client, "enterroomfailed");
@@ -336,6 +373,15 @@ export function createServer(options: ServerOptions = {}): ServerInstance {
 
 			// forward from slave to owner
 			if (client.owner) {
+				try {
+					const forwarded = JSON.parse(raw);
+					if (Array.isArray(forwarded) && forwarded[0] === "server" && forwarded[1] === "reset") {
+						handlers.reset(client.owner);
+						return;
+					}
+				} catch {
+					// Let the owner handle malformed or non-control messages as usual.
+				}
 				util.sendl(client.owner, "onmessage", client.wsid, raw);
 				return;
 			}
@@ -362,16 +408,20 @@ export function createServer(options: ServerOptions = {}): ServerInstance {
 		client.on("close", () => {
 			clearClientTimers(client);
 
-			// remove rooms owned by this client
+			// Keep the room briefly so a host refresh can reattach without losing it.
 			rooms.forEach((room, key) => {
 				if (room.owner === client) {
-					// notify all clients in this room
-					clients.forEach(c => {
-						if (c.room === room && c !== client) {
-							util.sendl(c, "selfclose");
-						}
-					});
-					rooms.delete(key);
+					delete room.owner;
+					room.ownerTimeout = setTimeout(() => {
+						if (room.owner) return;
+						clients.forEach(c => {
+							if (c.room === room && c !== client) {
+								util.sendl(c, "selfclose");
+							}
+						});
+						rooms.delete(key);
+						util.updateRooms();
+					}, 30000);
 				}
 			});
 

@@ -12778,7 +12778,16 @@ export class Library {
 					ui.connecting.firstChild.innerHTML = "重连成功";
 				}
 			},
-			onconnection: id => lib.init.connection((lib.wsOL[id] = new lib.element.NodeWS(id))),
+			onconnection: id => {
+				const attach = () => {
+					if (lib.node?.clients && game.connectPlayers) {
+						lib.init.connection((lib.wsOL[id] = new lib.element.NodeWS(id)));
+						return;
+					}
+					setTimeout(attach, 50);
+				};
+				attach();
+			},
 			onmessage: function (id, message) {
 				if (lib.wsOL[id]) {
 					lib.wsOL[id].onmessage(message);
@@ -12818,6 +12827,7 @@ export class Library {
 				ui.create.connecting(true);
 			},
 			roomlist: function (list, events, clients, wsid) {
+				var restoringOwnerRoom = typeof lib.config.tmp_owner_roomId == "string";
 				game.send("server", "key", [game.onlineKey, lib.version]);
 				game.online = true;
 				game.onlinehall = true;
@@ -12903,11 +12913,13 @@ export class Library {
 						}
 						return false;
 					};
-					if (typeof lib.config.tmp_owner_roomId == "string") {
-						if (typeof game.roomId != "string" && !findRoom(lib.config.tmp_owner_roomId)) {
-							lib.configOL.mode = lib.config.connect_mode;
+					if (restoringOwnerRoom) {
+						const restoredRoom = findRoom(lib.config.tmp_owner_roomId);
+						lib.configOL.mode = restoredRoom?.config?.mode || lib.config.connect_mode;
+						if (typeof game.roomId != "string" || game.roomId != lib.config.tmp_owner_roomId) {
 							game.roomId = lib.config.tmp_owner_roomId;
 						}
+						game.roomIdServer = false;
 						game.saveConfig("tmp_owner_roomId");
 					}
 					if (typeof lib.config.tmp_user_roomId == "string") {
@@ -12939,7 +12951,7 @@ export class Library {
 
 					if (typeof game.roomId == "string") {
 						var room = findRoom(game.roomId);
-						if (game.roomIdServer && room && (room.serving || !room.version)) {
+						if (!restoringOwnerRoom && game.roomIdServer && room && (room.serving || !room.version)) {
 							console.log();
 							if (lib.config.reconnect_info) {
 								lib.config.reconnect_info[2] = null;
