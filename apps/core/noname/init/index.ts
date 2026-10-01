@@ -634,6 +634,23 @@ async function getExtensionList() {
 
 	const extensions: string[] = config.get("extensions");
 	const toLoad: string[] = [];
+	const bundledExtensions: string[] = config.get("all").bundledextension ?? [];
+	let bundledExtensionsChanged = false;
+
+	// Bundled legacy extensions must stay discoverable even when an existing
+	// profile predates them or has automatic extension importing disabled.
+	for (const extension of bundledExtensions) {
+		if (extensions.includes(extension)) continue;
+		extensions.push(extension);
+		bundledExtensionsChanged = true;
+		if (!config.has(`extension_${extension}_enable`)) {
+			await game.promises.saveConfig(`extension_${extension}_enable`, false);
+		}
+	}
+	if (bundledExtensionsChanged) {
+		await game.promises.saveConfig("extensions", extensions);
+	}
+
 	toLoad.addArray(config.get("plays").filter(i => config.get("all").plays.includes(i)));
 	toLoad.addArray(extensions);
 

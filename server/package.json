@@ -1,0 +1,30 @@
+{
+    "name": "@noname/server",
+    "version": "1.0.0",
+    "description": "",
+    "keywords": [],
+    "license": "ISC",
+    "author": "",
+    "type": "module",
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "dev": "pnpm run build && node dist/cli.js",
+        "test": "pnpm run test:protocol",
+        "test:protocol": "pnpm run build && node test/protocol.mjs",
+        "lint": "pnpm eslint src/**"
+    },
+    "dependencies": {
+        "ws": "^8.19.0"
+    },
+    "devDependencies": {
+        "@types/ws": "^8.18.1",
+        "tsup": "^8.5.1",
+        "typescript": "^5.9.3"
+    }
+}

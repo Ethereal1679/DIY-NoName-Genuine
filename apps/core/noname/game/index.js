@@ -9073,6 +9073,10 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		game.me = null;
 	}
 	clearConnect() {
+		if (ui.connectOverlay) {
+			ui.connectOverlay.remove();
+			delete ui.connectOverlay;
+		}
 		if (ui.ipnode) {
 			ui.ipnode.remove();
 			delete ui.ipnode;

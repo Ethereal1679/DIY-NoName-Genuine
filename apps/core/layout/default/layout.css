@@ -65,6 +65,294 @@ table {
 	font-family: "xinwei";
 	transition: all 0.5s;
 }
+
+/* -------- 联机大厅 -------- */
+.lan-connect-overlay {
+	position: fixed !important;
+	inset: 0;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	pointer-events: auto;
+	overflow: auto;
+	z-index: 120;
+	background: rgba(36, 30, 26, 0.42);
+	backdrop-filter: blur(2px);
+}
+.lan-connect-panel {
+	position: relative !important;
+	display: block !important;
+	box-sizing: border-box;
+	width: min(620px, calc(100vw - 40px));
+	max-height: calc(100vh - 40px);
+	overflow: auto;
+	padding: 28px 30px 24px;
+	border: 1px solid rgba(255, 243, 216, 0.28);
+	border-radius: 10px;
+	background: linear-gradient(145deg, rgba(71, 57, 46, 0.9), rgba(37, 31, 28, 0.91));
+	box-shadow: 0 18px 50px rgba(15, 10, 8, 0.45), inset 0 1px rgba(255, 255, 255, 0.08);
+	color: #f5ecdc;
+	font-family: "STKaiti", "KaiTi", "Microsoft YaHei", sans-serif;
+}
+.lan-connect-panel * {
+	position: static;
+	box-sizing: border-box;
+}
+.lan-connect-header {
+	display: flex !important;
+	align-items: flex-start;
+	justify-content: space-between;
+	min-height: 56px;
+}
+.lan-connect-title-group {
+	display: block !important;
+}
+.lan-connect-kicker {
+	display: block !important;
+	margin-bottom: 3px;
+	color: rgba(232, 202, 158, 0.78);
+	font-family: Arial, sans-serif;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.22em;
+}
+.lan-connect-title {
+	display: block;
+	margin: 0;
+	color: #fff5df;
+	font-size: 34px;
+	font-weight: 500;
+	line-height: 1.12;
+	text-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+.lan-connect-icon-button,
+.lan-connect-copy,
+.lan-connect-recent-use,
+.lan-connect-tab,
+.lan-connect-primary,
+.lan-connect-secondary {
+	appearance: none;
+	border: 0;
+	font: inherit;
+	cursor: pointer;
+}
+.lan-connect-icon-button {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border: 1px solid rgba(255, 239, 203, 0.3);
+	border-radius: 7px;
+	background: rgba(255, 255, 255, 0.08);
+	color: #f9e9c8;
+	font-family: Arial, sans-serif;
+	font-size: 22px;
+	line-height: 1;
+}
+.lan-connect-icon-button:hover,
+.lan-connect-copy:hover,
+.lan-connect-recent-use:hover,
+.lan-connect-secondary:hover {
+	background: rgba(255, 255, 255, 0.16);
+}
+.lan-connect-tabs {
+	display: flex !important;
+	gap: 5px;
+	margin: 22px 0 20px;
+	padding: 4px;
+	border-radius: 8px;
+	background: rgba(12, 10, 9, 0.22);
+}
+.lan-connect-tab {
+	display: block !important;
+	flex: 1;
+	padding: 8px 12px;
+	border-radius: 5px;
+	background: transparent;
+	color: rgba(255, 241, 214, 0.62);
+	font-size: 17px;
+	line-height: 1.2;
+}
+.lan-connect-tab.active {
+	background: rgba(236, 205, 155, 0.18);
+	box-shadow: inset 0 0 0 1px rgba(236, 205, 155, 0.22);
+	color: #fff2d2;
+}
+.lan-connect-form,
+.lan-connect-label,
+.lan-connect-input,
+.lan-connect-actions,
+.lan-connect-status,
+.lan-connect-info,
+.lan-connect-info-header,
+.lan-connect-info-rows,
+.lan-connect-info-row,
+.lan-connect-recent {
+	display: block !important;
+}
+.lan-connect-label {
+	margin-bottom: 8px;
+	color: rgba(255, 242, 216, 0.82);
+	font-size: 16px;
+}
+.lan-connect-input {
+	width: 100%;
+	height: 52px;
+	padding: 0 16px;
+	border: 1px solid rgba(255, 235, 192, 0.25);
+	border-radius: 7px;
+	outline: none;
+	background: rgba(17, 14, 12, 0.42);
+	box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.18);
+	color: #fff8e8;
+	font-family: Arial, sans-serif;
+	font-size: 22px;
+	letter-spacing: 0.02em;
+	text-align: center;
+}
+.lan-connect-input:focus {
+	border-color: rgba(239, 202, 139, 0.75);
+	box-shadow: 0 0 0 3px rgba(211, 164, 92, 0.16), inset 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+.lan-connect-input::placeholder {
+	color: rgba(255, 239, 208, 0.35);
+}
+.lan-connect-actions {
+	display: flex !important;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 14px;
+}
+.lan-connect-primary,
+.lan-connect-secondary {
+	min-width: 100px;
+	min-height: 38px;
+	padding: 7px 18px;
+	border-radius: 6px;
+	font-size: 17px;
+	line-height: 1.2;
+}
+.lan-connect-primary {
+	background: #d5bb8a;
+	box-shadow: 0 3px 8px rgba(16, 10, 7, 0.3);
+	color: #3e3025;
+}
+.lan-connect-primary:hover {
+	background: #e4c998;
+}
+.lan-connect-primary:disabled {
+	cursor: wait;
+	opacity: 0.58;
+}
+.lan-connect-secondary {
+	border: 1px solid rgba(255, 234, 195, 0.25);
+	background: rgba(255, 255, 255, 0.08);
+	color: #f6e7ca;
+}
+.lan-connect-status {
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 28px;
+	margin-top: 10px;
+	color: rgba(255, 240, 213, 0.72);
+	font-size: 14px;
+}
+.lan-connect-status-dot {
+	display: inline-block !important;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #d9bd82;
+	box-shadow: 0 0 8px rgba(217, 189, 130, 0.7);
+}
+.lan-connect-status-dot[data-state="busy"] { background: #e8ba65; }
+.lan-connect-status-dot[data-state="success"] { background: #a8c883; }
+.lan-connect-status-dot[data-state="error"] { background: #d48672; }
+.lan-connect-status[data-state="error"] { color: #f0b2a2; }
+.lan-connect-status[data-state="success"] { color: #c5dda7; }
+.lan-connect-info {
+	margin-top: 14px;
+	padding: 14px 16px 12px;
+	border: 1px solid rgba(255, 236, 198, 0.13);
+	border-radius: 7px;
+	background: rgba(16, 13, 11, 0.31);
+}
+.lan-connect-info-header {
+	display: flex !important;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+.lan-connect-info-title {
+	color: #f7e6c5;
+	font-size: 16px;
+}
+.lan-connect-copy,
+.lan-connect-recent-use {
+	padding: 4px 9px;
+	border: 1px solid rgba(255, 237, 200, 0.2);
+	border-radius: 4px;
+	background: rgba(255, 255, 255, 0.06);
+	color: rgba(255, 238, 202, 0.78);
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+}
+.lan-connect-info-row {
+	display: flex !important;
+	align-items: baseline;
+	gap: 12px;
+	min-height: 25px;
+	font-size: 14px;
+}
+.lan-connect-info-name {
+	flex: 0 0 70px;
+	color: rgba(255, 236, 201, 0.56);
+}
+.lan-connect-info-value {
+	min-width: 0;
+	overflow: hidden;
+	color: #f7ecda;
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.lan-connect-recent {
+	display: flex !important;
+	align-items: center;
+	gap: 9px;
+	margin-top: 14px;
+}
+.lan-connect-recent-label {
+	flex: 0 0 auto;
+	color: rgba(255, 236, 201, 0.56);
+	font-size: 14px;
+}
+.lan-connect-recent-select {
+	min-width: 0;
+	flex: 1;
+	height: 31px;
+	padding: 0 7px;
+	border: 1px solid rgba(255, 236, 198, 0.18);
+	border-radius: 4px;
+	background: rgba(14, 11, 9, 0.32);
+	color: #f3e4c9;
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+}
+@media (max-width: 560px) {
+	.lan-connect-panel {
+		width: calc(100vw - 24px);
+		padding: 22px 18px 18px;
+	}
+	.lan-connect-title { font-size: 29px; }
+	.lan-connect-input { font-size: 18px; }
+	.lan-connect-info-row { gap: 7px; }
+	.lan-connect-info-name { flex-basis: 58px; }
+}
 #window.server > div:not(.serverinfo) {
 	display: none !important;
 }
