@@ -13,10 +13,91 @@ export default () => {
 			const directstartmode = lib.config.directstartmode;
 			ui.create.menu(true);
 			const state = { created: false, connecting: false };
+			const hostAddresses = { lan: [], zerotier: [] };
+			const notDetected = "未检测到";
+			const virtualInterfacePattern = /zerotier|vmware|virtualbox|vethernet|hyper-v|wsl|docker|tailscale/i;
+
+			const isIPv4 = address => {
+				const parts = String(address || "")
+					.split(".")
+					.map(Number);
+				return parts.length === 4 && parts.every(part => Number.isInteger(part) && part >= 0 && part <= 255);
+			};
+
+			const isPrivateIPv4 = address => {
+				const parts = address.split(".").map(Number);
+				return parts[0] === 10 || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) || (parts[0] === 192 && parts[1] === 168);
+			};
+
+			const normalizeAddressList = addresses =>
+				[...new Set((Array.isArray(addresses) ? addresses : []).filter(isIPv4))].filter(address => address !== "127.0.0.1" && !address.startsWith("169.254."));
+
+			const collectNetworkAddresses = interfaces => {
+				const lan = [];
+				const zerotier = [];
+				for (const [name, entries] of Object.entries(interfaces || {})) {
+					for (const entry of entries || []) {
+						if ((entry.family !== "IPv4" && entry.family !== 4) || entry.internal || !isIPv4(entry.address)) continue;
+						if (entry.address === "127.0.0.1" || entry.address.startsWith("169.254.")) continue;
+						if (/zerotier/i.test(name)) zerotier.push(entry.address);
+						else if (!virtualInterfacePattern.test(name)) lan.push(entry.address);
+					}
+				}
+				lan.sort((a, b) => Number(isPrivateIPv4(b)) - Number(isPrivateIPv4(a)));
+				return { lan: normalizeAddressList(lan), zerotier: normalizeAddressList(zerotier) };
+			};
+
+			const normalizeNetworkResponse = payload => {
+				if (payload?.success === false) throw new Error(payload.errorMsg || "主机网卡扫描失败");
+				const data = payload?.success === true ? payload.data : payload;
+				return {
+					lan: normalizeAddressList(data?.lan),
+					zerotier: normalizeAddressList(data?.zerotier),
+				};
+			};
+
+			const networkScanURLs = () => {
+				const urls = [];
+				try {
+					urls.push(new URL("/networkInterfaces", window.location.href).href);
+				} catch {
+					// The fallback below also covers file:// pages.
+				}
+				if (window.location.protocol === "http:") {
+					const fallback = new URL(window.location.href);
+					fallback.port = "8089";
+					fallback.pathname = "/networkInterfaces";
+					fallback.search = "";
+					fallback.hash = "";
+					urls.push(fallback.href);
+				} else if (window.location.protocol === "file:") {
+					urls.push("http://127.0.0.1:8089/networkInterfaces");
+				}
+				return [...new Set(urls)];
+			};
+
+			const fetchNetworkAddresses = async () => {
+				let lastError;
+				for (const url of networkScanURLs()) {
+					const controller = typeof AbortController === "function" ? new AbortController() : null;
+					const timeout = controller ? setTimeout(() => controller.abort(), 2500) : null;
+					try {
+						const response = await fetch(url, { cache: "no-store", signal: controller?.signal });
+						if (!response.ok) throw new Error(`HTTP ${response.status}`);
+						return normalizeNetworkResponse(await response.json());
+					} catch (error) {
+						lastError = error;
+					} finally {
+						if (timeout) clearTimeout(timeout);
+					}
+				}
+				throw lastError || new Error("没有可用的主机网卡扫描服务");
+			};
+
+			const preferredHostAddress = () => hostAddresses.lan[0] || hostAddresses.zerotier[0] || window.location.hostname || "127.0.0.1";
 
 			const localEndpoint = () => {
-				const hostname = window.location.hostname;
-				return `${hostname && hostname !== "" ? hostname : "127.0.0.1"}:8082`;
+				return `${preferredHostAddress()}:8082`;
 			};
 
 			const normalizeEndpoint = value => {
@@ -95,11 +176,8 @@ export default () => {
 				createElement("h1", "lan-connect-title", "联机大厅", titleGroup);
 				const refresh = createElement("button", "lan-connect-icon-button", "↻", header);
 				refresh.type = "button";
-				refresh.title = "使用本机局域网地址";
-				refresh.addEventListener("click", () => {
-					input.value = localEndpoint();
-					setStatus("已填入本机局域网地址", "ready");
-				});
+				refresh.title = "重新扫描本机 IPv4 地址";
+				refresh.setAttribute("aria-label", "重新扫描本机 IPv4 地址");
 
 				const tabs = createElement("div", "lan-connect-tabs", undefined, panel);
 				const lanTab = createElement("button", "lan-connect-tab active", "局域网联机", tabs);
@@ -131,10 +209,6 @@ export default () => {
 				connectButton.type = "submit";
 				const localButton = createElement("button", "lan-connect-secondary", "填入本机", actions);
 				localButton.type = "button";
-				localButton.addEventListener("click", () => {
-					input.value = localEndpoint();
-					input.focus();
-				});
 
 				const status = createElement("div", "lan-connect-status", undefined, panel);
 				const statusDot = createElement("span", "lan-connect-status-dot", undefined, status);
@@ -151,26 +225,8 @@ export default () => {
 					createElement("span", "lan-connect-info-name", name, row);
 					return createElement("code", "lan-connect-info-value", value, row);
 				};
-				const hostAddresses = { lan: "未检测到", virtual: "未检测到" };
-				if (lib.node && window.require) {
-					try {
-						const interfaces = window.require("os").networkInterfaces();
-						for (const [name, entries] of Object.entries(interfaces)) {
-							for (const entry of entries || []) {
-								if (entry.family !== "IPv4" || entry.internal || entry.address.startsWith("169.254.")) continue;
-								if (/zerotier/i.test(name)) hostAddresses.virtual = entry.address;
-								else if (hostAddresses.lan === "未检测到" && !/vmware|virtualbox|vethernet/i.test(name)) hostAddresses.lan = entry.address;
-							}
-						}
-					} catch {
-						// Browser builds cannot inspect host network interfaces.
-					}
-				}
-				if (hostAddresses.lan === "未检测到" && /^\d{1,3}(?:\.\d{1,3}){3}$/.test(window.location.hostname) && window.location.hostname !== "127.0.0.1") {
-					hostAddresses.lan = window.location.hostname;
-				}
-				addRow("局域网 IPv4", hostAddresses.lan);
-				addRow("虚拟网络 IPv4", hostAddresses.virtual);
+				const lanAddressNode = addRow("局域网 IPv4", notDetected);
+				const zerotierAddressNode = addRow("ZeroTier IPv4", notDetected);
 				addRow("网页地址", window.location.host || "本地文件");
 				const endpointNode = addRow("联机地址", normalizeEndpoint(input.value));
 				addRow("连接方式", "WebSocket / 局域网");
@@ -194,6 +250,7 @@ export default () => {
 				useRecent.addEventListener("click", () => {
 					if (recentSelect.value) {
 						input.value = recentSelect.value;
+						updateInfo();
 						input.focus();
 					}
 				});
@@ -206,6 +263,75 @@ export default () => {
 				const updateInfo = () => {
 					endpointNode.textContent = normalizeEndpoint(input.value) || localEndpoint();
 				};
+				const renderHostAddresses = () => {
+					lanAddressNode.textContent = hostAddresses.lan.join(" / ") || notDetected;
+					zerotierAddressNode.textContent = hostAddresses.zerotier.join(" / ") || notDetected;
+				};
+				const isLoopbackEndpoint = value => /^(?:(?:ws|wss|http|https):\/\/)?(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/i.test(String(value || "").trim());
+				let scanId = 0;
+				const scanHostAddresses = async ({ fillInput = false, replaceLoopback = false } = {}) => {
+					const currentScan = ++scanId;
+					refresh.disabled = true;
+					refresh.classList.add("scanning");
+					setStatus("正在扫描主机网卡…", "busy");
+					let detected = null;
+					try {
+						if (lib.node && window.require) {
+							try {
+								detected = collectNetworkAddresses(window.require("os").networkInterfaces());
+							} catch {
+								// Fall through to the local HTTP service.
+							}
+						}
+						if (!detected) detected = await fetchNetworkAddresses();
+						if (currentScan !== scanId) return;
+						hostAddresses.lan = detected.lan;
+						hostAddresses.zerotier = detected.zerotier;
+						renderHostAddresses();
+
+						if (fillInput || (replaceLoopback && isLoopbackEndpoint(input.value))) {
+							input.value = localEndpoint();
+							updateInfo();
+						}
+
+						if (hostAddresses.lan.length && hostAddresses.zerotier.length) setStatus("已检测到局域网和 ZeroTier IPv4 地址", "success");
+						else if (hostAddresses.lan.length) setStatus("已检测到本机局域网 IPv4 地址", "success");
+						else if (hostAddresses.zerotier.length) setStatus("已检测到本机 ZeroTier IPv4 地址", "success");
+						else setStatus("未检测到可用的局域网或 ZeroTier IPv4 地址", "error");
+					} catch (error) {
+						if (currentScan !== scanId) return;
+						console.warn("无法扫描主机 IPv4 地址:", error);
+						renderHostAddresses();
+						setStatus("无法读取主机网卡，请确认本地文件服务已启动", "error");
+					} finally {
+						if (currentScan === scanId) {
+							refresh.disabled = false;
+							refresh.classList.remove("scanning");
+						}
+					}
+				};
+				const fillPreferredAddress = async () => {
+					if (!hostAddresses.lan.length && !hostAddresses.zerotier.length) await scanHostAddresses();
+					input.value = localEndpoint();
+					updateInfo();
+					input.focus();
+				};
+				refresh.addEventListener("click", () => scanHostAddresses({ fillInput: true }));
+				localButton.addEventListener("click", fillPreferredAddress);
+				for (const [node, addressType] of [
+					[lanAddressNode, "lan"],
+					[zerotierAddressNode, "zerotier"],
+				]) {
+					node.title = "点击填入此地址";
+					node.classList.add("selectable");
+					node.addEventListener("click", () => {
+						const addresses = hostAddresses[addressType];
+						if (!addresses.length) return;
+						input.value = normalizeEndpoint(addresses[0]);
+						updateInfo();
+						input.focus();
+					});
+				}
 
 				const connect = event => {
 					event?.preventDefault();
@@ -252,7 +378,7 @@ export default () => {
 				const lastIP = lib.config.last_ip || localEndpoint();
 				input.value = normalizeEndpoint(lastIP);
 				updateInfo();
-				setStatus("同一局域网内请使用主机的 IPv4 地址", "ready");
+				scanHostAddresses({ replaceLoopback: true });
 
 				ui.ipnode = input;
 				ui.iptext = statusText;

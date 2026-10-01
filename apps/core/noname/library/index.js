@@ -13365,7 +13365,7 @@ export class Library {
 						player.seatNum = info.seatNum;
 						player.disabledSlots = info.disabledSlots;
 						player.expandedSlots = info.expandedSlots;
-						player.extraEquip = info.extraEquip;
+						player.extraEquip = Array.isArray(info.extraEquip) ? info.extraEquip : [];
 						player.setNickname();
 						if (info.dead) {
 							player.classList.add("dead");

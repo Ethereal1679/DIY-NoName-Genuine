@@ -24,6 +24,7 @@ export default defineConfig({
 			allow: ["../.."],
 		},
 		proxy: {
+			"/networkInterfaces": "http://127.0.0.1:" + port.server,
 			"/checkFile": "http://127.0.0.1:" + port.server,
 			"/checkDir": "http://127.0.0.1:" + port.server,
 			"/readFile": "http://127.0.0.1:" + port.server,

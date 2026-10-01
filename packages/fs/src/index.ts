@@ -5,6 +5,7 @@ import fs from "fs/promises";
 import path from "path";
 import { cwd } from "process";
 import { exec } from "child_process";
+import { networkInterfaces, type NetworkInterfaceInfo } from "node:os";
 
 interface JsonResult<T = any> {
 	success: boolean;
@@ -30,6 +31,58 @@ export const defaultConfig = {
 	debug: false,
 	dirname: cwd(),
 };
+
+export interface HostNetworkInterface {
+	name: string;
+	address: string;
+	internal: boolean;
+	type: "lan" | "zerotier" | "virtual";
+}
+
+export interface HostNetworkAddresses {
+	interfaces: HostNetworkInterface[];
+	lan: string[];
+	zerotier: string[];
+}
+
+const virtualInterfacePattern = /zerotier|vmware|virtualbox|vethernet|hyper-v|wsl|docker|tailscale/i;
+
+function isPrivateIPv4(address: string) {
+	const parts = address.split(".").map(Number);
+	if (parts.length !== 4 || parts.some(part => !Number.isInteger(part) || part < 0 || part > 255)) return false;
+	return parts[0] === 10 || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) || (parts[0] === 192 && parts[1] === 168);
+}
+
+/**
+ * Convert Node's platform-specific adapter data into the small, safe shape
+ * consumed by the multiplayer lobby. MAC addresses are deliberately omitted.
+ */
+export function collectHostNetworkAddresses(adapters = networkInterfaces()): HostNetworkAddresses {
+	const found: HostNetworkInterface[] = [];
+
+	for (const [name, entries] of Object.entries(adapters)) {
+		for (const entry of entries || []) {
+			const info = entry as NetworkInterfaceInfo;
+			const family = info.family as string | number;
+			if ((family !== "IPv4" && family !== 4) || info.internal) continue;
+			if (info.address === "127.0.0.1" || info.address.startsWith("169.254.")) continue;
+
+			const type = /zerotier/i.test(name) ? "zerotier" : virtualInterfacePattern.test(name) ? "virtual" : "lan";
+			found.push({ name, address: info.address, internal: false, type });
+		}
+	}
+
+	const unique = (addresses: string[]) => [...new Set(addresses)];
+	const lan = unique(
+		found
+			.filter(item => item.type === "lan")
+			.sort((a, b) => Number(isPrivateIPv4(b.address)) - Number(isPrivateIPv4(a.address)) || a.name.localeCompare(b.name))
+			.map(item => item.address)
+	);
+	const zerotier = unique(found.filter(item => item.type === "zerotier").map(item => item.address));
+
+	return { interfaces: found, lan, zerotier };
+}
 
 function createFsHandler(dirname: string) {
 	const join = (url: string) => path.join(dirname, url);
@@ -77,6 +130,11 @@ export default function createApp(config: Partial<typeof defaultConfig> = {}) {
 
 	// index.html
 	app.get("/", async (req, reply) => reply.redirect("/index.html"));
+
+	app.get(
+		"/networkInterfaces",
+		wrap(async () => collectHostNetworkAddresses())
+	);
 
 	app.get(
 		"/createDir",

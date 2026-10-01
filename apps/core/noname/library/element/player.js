@@ -422,6 +422,9 @@ export class Player extends HTMLDivElement {
 	 */
 	addExtraEquip(skill, equip, replace = false, preserve) {
 		const player = this;
+		if (!Array.isArray(player.extraEquip)) {
+			player.extraEquip = [];
+		}
 		if (replace) {
 			player.removeExtraEquip(skill);
 		}
@@ -450,6 +453,9 @@ export class Player extends HTMLDivElement {
 	 */
 	removeExtraEquip(skill, equip = "noequip") {
 		const player = this;
+		if (!Array.isArray(player.extraEquip)) {
+			player.extraEquip = [];
+		}
 		let equips;
 		if (equip != "noequip") {
 			equip = typeof equip == "string" ? [equip] : equip;
@@ -4424,7 +4430,7 @@ export class Player extends HTMLDivElement {
 			handcards: this.getCards("hs"),
 			gaintag: [],
 			equips: this.getCards("e"),
-			extraEquip: this.extraEquip,
+			extraEquip: Array.isArray(this.extraEquip) ? this.extraEquip : [],
 			equips_map: this.getCards("e").reduce((map, value) => {
 				let id = value.cardid;
 				map[id] = {};
@@ -15539,6 +15545,9 @@ export class Player extends HTMLDivElement {
 		const cards = Array.from(player.node.equips.childNodes);
 		const cardsResume = cards.slice(0);
 		const extraEquip = [];
+		if (!Array.isArray(player.extraEquip)) {
+			player.extraEquip = [];
+		}
 		player.extraEquip.forEach(info => {
 			if (player.hiddenSkills.includes(info[0])) {
 				return;
