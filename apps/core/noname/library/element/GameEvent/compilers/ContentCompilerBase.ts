@@ -3,6 +3,13 @@ import { IContentCompiler, EventContent } from "./IContentCompiler.js";
 
 type HandlerOption = { state?: "begin" | "end" };
 
+type CompatibleGameEvent = GameEvent & {
+	getDefaultHandlerType?: () => string;
+	callHandler?: (type: string, event: GameEvent, option: HandlerOption) => unknown;
+	updateStep?: () => unknown;
+	clearStepCache?: (key: string | null) => unknown;
+};
+
 /**
  * 向子类提供统一的公共方法
  */
@@ -18,11 +25,11 @@ export default abstract class ContentCompilerBase implements IContentCompiler {
 	 *
 	 * @param event 事件
 	 */
-	beforeExecute(event: GameEvent) {
-		const handlerType = event.getDefaultHandlerType() as `on${Capitalize<string>}`;
+	beforeExecute(event: CompatibleGameEvent) {
+		const handlerType = this.getHandlerType(event) as `on${Capitalize<string>}`;
 		const option: HandlerOption = { state: "begin" };
-		event.callHandler(handlerType, event, option);
-		event.updateStep();
+		this.callHandler(event, handlerType, option);
+		event.updateStep?.();
 	}
 
 	/**
@@ -71,12 +78,41 @@ export default abstract class ContentCompilerBase implements IContentCompiler {
 	 *
 	 * @param event 事件
 	 */
-	afterExecute(event: GameEvent) {
-		event.clearStepCache(null);
+	afterExecute(event: CompatibleGameEvent) {
+		event.clearStepCache?.(null);
 
-		const handlerType = event.getDefaultHandlerType() as `on${Capitalize<string>}`;
+		const handlerType = this.getHandlerType(event) as `on${Capitalize<string>}`;
 		const option: HandlerOption = { state: "end" };
-		event.callHandler(handlerType, event, option);
-		event.updateStep();
+		this.callHandler(event, handlerType, option);
+		event.updateStep?.();
+	}
+
+	/**
+	 * Extensions and reconnect payloads can still provide legacy event-shaped
+	 * objects. Keep the compiler lifecycle compatible with those objects while
+	 * native GameEvent instances continue to use their own methods.
+	 */
+	private getHandlerType(event: CompatibleGameEvent) {
+		if (typeof event.getDefaultHandlerType === "function") {
+			return event.getDefaultHandlerType();
+		}
+		const name = typeof event.name === "string" ? event.name : "";
+		return name ? `on${name[0].toUpperCase()}${name.slice(1)}` : "";
+	}
+
+	private callHandler(event: CompatibleGameEvent, type: string, option: HandlerOption) {
+		if (typeof event.callHandler === "function") {
+			event.callHandler(type, event, option);
+			return;
+		}
+		if (!type) {
+			return;
+		}
+		const handlers = event[type];
+		for (const handler of Array.isArray(handlers) ? handlers : [handlers]) {
+			if (typeof handler === "function") {
+				handler(event, option);
+			}
+		}
 	}
 }

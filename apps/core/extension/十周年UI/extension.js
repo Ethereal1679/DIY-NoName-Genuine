@@ -17040,7 +17040,11 @@ if(!(lib.config.extensions.contains("手杀ui")&&lib.config.extension_手杀ui_e
 								if (info.viewAs && typeof info.viewAs != 'function' && event.filterCard && !event.filterCard(get.autoViewAs(info.viewAs, 'unsure'), player, event)) enable = false;
 								if (info.viewAs && typeof info.viewAs != 'function' && info.viewAsFilter && info.viewAsFilter(player) == false) enable = false;
 								
-								if (info.usable && get.skillCount(skills2[i]) >= info.usable) enable = false;
+								if (info.usable !== undefined) {
+									let usable = info.usable;
+									if (typeof usable == 'function') usable = usable(skills2[i], player);
+									if (typeof usable == 'number' && get.skillCount(skills2[i], player) >= usable) enable = false;
+								}
 								if (info.chooseButton && _status.event.noButton) enable = false;
 								if (info.round && (info.round - (game.roundNumber - player.storage[skills2[i] + '_roundcount']) > 0)) enable = false;
 								for (const item in player.storage) {
@@ -20680,30 +20684,15 @@ if(!(lib.config.extensions.contains("手杀ui")&&lib.config.extension_手杀ui_e
 					// 注：暂时先用旧代码，未适配新本体代码（async content）
 						showPlayerName = false;
 						infoText = event.judgestr + '的判定牌';
-				        if (!lib.element.content['throwJudgeCallback']){
-				            lib.element.content['throwJudgeCallback'] = function(event,step,source,player,target,targets,card,cards,skill,forced,num,trigger,result,_status,lib,game,ui,get,ai){
-    				            var callback = event.parent.overrides.callback;
-    				            if (callback){
-    				                if (!callback._parsed){
-    				                    event.parent.overrides.callback = lib.init.parsex(callback);
-    				                    event.parent.overrides.callback._parsed = true;
-    				                    callback = event.parent.overrides.callback;
-    				                    var steps = callback.toString().match(/case(.*?)(?=:)/g);
-    				                    
-    				                    if (steps && steps.length){
-    				                        event.parent.overrides.step = parseInt(steps[steps.length - 1].replace('case', '')) + 1;
-    				                    }
-    				                    
-    				                }
-    				            }
-    				            
-    				            if (event.parent.overrides.step == step){
-    				                event.finish();
-									return;
-    				            }
-    				            
-    				            if (callback) callback.apply(this, arguments);
-    				            var card = event.judgeResult.card.clone;
+						if (!lib.element.content['throwJudgeCallback']){
+						    lib.element.content['throwJudgeCallback'] = async function(event){
+								let callback = event.parent.overrides.callback;
+								if (callback) {
+									callback = lib.init.parsex(callback);
+									event.parent.overrides.callback = callback;
+									await callback.call(this, event);
+								}
+								var card = event.judgeResult.card.clone;
 								var apcard = event.parent.apcard;
     				            card.node.usedTextNode = card.querySelector('.used-info');
 								
