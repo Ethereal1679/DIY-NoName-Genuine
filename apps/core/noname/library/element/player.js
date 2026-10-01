@@ -9758,6 +9758,9 @@ export class Player extends HTMLDivElement {
 		return true;
 	}
 	addJudgeNext(card, unlimited) {
+		if (!card) {
+			return;
+		}
 		if (!card.expired) {
 			const name = card.viewAs || card.name;
 			const cards = get.itemtype(card) == "card" ? [card] : (card.cards ?? []);

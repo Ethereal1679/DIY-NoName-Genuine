@@ -4941,7 +4941,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			event.card = event.cards.shift();
 			const cardName = event.card.name;
 			const cardInfo = lib.card[cardName];
-			const VJudge = event.card[event.card.cardSymbol];
+			const VJudge = event.card[event.card.cardSymbol] || event.card;
 			if (cardInfo.noEffect || !player.getCards("j").includes(event.card)) {
 				event.redo();
 			} else {
@@ -4970,7 +4970,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 		},
 		async (event, trigger, player) => {
 			const name = event.card.name;
-			const VJudge = event.card[event.card.cardSymbol];
+			const VJudge = event.card[event.card.cardSymbol] || event.card;
 			if (event.excluded) {
 				delete event.excluded;
 			} else if (event.cancelled && !event.direct) {

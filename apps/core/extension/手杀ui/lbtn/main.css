@@ -1,0 +1,407 @@
+.lbtn-controls {
+  --width: 50px;
+  right: 17.5px;
+  bottom: 68px;
+  width: var(--width);
+  z-index: 1;
+  
+
+}
+
+.menuButton {
+  display: block;
+  width: 105px;
+  height: 77px;
+  position: absolute;
+  top: calc(-2.3% - 0px);
+  right: -25px;
+  background-image: url("./images/button.png");
+  background-size: 100% 100%;  
+  z-index:1;
+}
+
+.shenfenpic {
+  display: block;
+  width: 350px;
+  height: 46px;
+  position: absolute;
+  top: calc(-1% - 10px);
+  left: -70px;
+  background-image: url("./images/shenfen.png");
+  background-size: 100% 100%;  
+  z-index:-1;
+}
+
+.tuoguanButton {
+  display: block;
+  width: 105px;
+  height: 77px;
+  position: absolute;
+  bottom: calc(-1.2% - 0px);
+  right: -25px;
+  background-image: url("./images/auto.png");
+  background-size: 100% 100%;  
+  z-index:1;
+}
+
+#arena:not(.single-handcard):not(.chess).cxy-new-ui > .lbtn-controls ~  #mebg,
+#arena:not(.single-handcard):not(.chess).cxy-new-ui > .lbtn-controls ~ #me {
+  left: 40px !important;
+}
+.lbtn-controls ~ #me #handcards1 {
+  --lessw: 40px;
+}
+
+.lbtn-controls > div {
+  display: block;
+  position: relative;
+}
+.lbtn-control {
+  width: 63px;
+  height: 52px;
+  background-image: url("./images/btn-bg.png");
+  font-size: 18px;
+  background-size: 100% 100%;
+  line-height: 51.5px;
+  text-align: center;
+  white-space: nowrap;
+  color: #F5D78E;
+  text-shadow: #F5D78E 0 0 1px,
+    black 0 0 2px,
+    black 0 0 2px,
+    black 0 0 2px, 
+    black 0 0 2px,
+    black 0 0 2px,
+    black 0 0 2px;
+  font-family: 'shousha';
+  border-radius: 10px;
+}
+.lbtn-control + .lbtn-control {
+  margin-top: 9px;
+}
+
+.lbtn-confirm:not(.closing).removing {
+  opacity: 1 !important;
+}
+.control {
+  --height: 40px;
+  width: auto !important;
+  background: transparent;
+  box-shadow: none;
+  line-height: normal;
+  padding: 0;
+}
+.control > div {
+  --h: var(--height);
+  --p: calc(var(--h) * 25 / 54);
+  height: var(--h);
+  background-image: url("./images/confirm-bg-c.png");
+  background-size: 100% 100%;
+  line-height: 40px;
+  text-align: center;
+  padding: 0 var(--p);
+  color: #F5D78E;
+  font-family: 'HYZLSJ';
+  font-size: 30px;
+  border-radius: 4px;
+  overflow: visible;
+  transition: none;
+}
+
+.control > div.primary {
+  --p: calc(var(--h) * 11 / 75);
+  background-image: none;
+}
+.control > div + div {
+  margin-left: 15px;
+}
+.control > div::before,
+.control > div::after {
+  content: '';
+  top: 0;
+  width: var(--p);
+  height: var(--h);
+  position: absolute;
+  background-size: 100% 100%;
+  z-index: 0;
+}
+
+
+.control > div.disabled:not([data-type="endButton"]) {
+  background-size: 100% 100%;
+}
+.control > div.primary > span {
+    --sh: calc(var(--h) - 6px);
+  display: block;
+  font-size: 30px;
+  line-height: var(--sh);
+  margin: 0px 0px 0px 0px;/*按钮位置*/
+  background-image: url("./images/btn.png");
+  padding: 5.5px 40px;/*按钮长度，越大越长*/
+  background-size: 100% 108%;
+  bottom:3.5px;
+  position: relative;
+}
+
+ .control > div.disabled:not([data-type="endButton"]) {
+  
+  -webkit-filter: grayscale(100%);
+}                                                     
+.lbtn-confirm[data-skill] > [data-type="skill2"] {
+  display: none;
+}
+
+
+.handcardNumber {
+  bottom: 10px;
+left: -220px;
+  font-family: 'shousha';
+ text-shadow: #F5D78E 0 0 1px,
+    black 0 0 2px,
+    black 0 0 2px,
+    black 0 0 2px, 
+    black 0 0 2px,
+    black 0 0 2px,
+    black 0 0 2px;
+  color: white;
+      /* z-index: 1; */
+}
+
+.handcardNumber > .cardPicture {
+left: 193px;
+bottom: -15px;
+  --w: 400px;
+  --h: calc(var(--w) * 1085/ 2168);/*宽和长*/
+  width: var(--w);
+  height: var(--h);
+  background-image: url("./images/count.png");
+  background-size: 100% 100%;  
+  position: relative;
+   z-index: -1;
+}
+
+.handcardNumber > .cardNumber {
+  left: 373.55px;
+bottom: 12px;
+height: 8px;
+line-height: 25px;
+  text-align: center;
+  font-size: 19px;
+  white-space: nowrap;
+  
+  
+}
+
+.cardRoundNumber {
+  top: calc(0% + 15px);
+right: 100px;/*牌堆数及游戏时间，轮数整体。越大越往左*/
+  font-family: 'shousha';
+  text-shadow: black 1px 1px 1px,
+    black 1px -1px 1px,
+    black -1px 1px 1px,
+    black -1px -1px 1px;
+}
+
+.cardRoundNumber > .cardPileNumber {
+  --w: 30px;
+  --h: calc(var(--w) * 173/ 127);
+  width: var(--w);
+  height: var(--h);
+  background-image: url("./images/cardback.png");
+  background-size: 100% 100%;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, .65);
+  position: relative;
+}
+.cardRoundNumber > .cardPileNumber > span {
+  left: -1px;
+bottom: 0px;
+width: 100%;
+display: block;
+position: absolute;
+line-height: 20px;
+text-align: center;
+  font-size: 20px;/*牌堆数*/
+  font-weight: bold;
+}
+.cardRoundNumber > .roundNumber,
+.cardRoundNumber > .time {
+ /*游戏轮数显示*/
+   left: -7.3px;
+  bottom: 48px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 18px;
+  text-shadow: black 1px 1px 3px,
+    black 1px -1px 3px,
+    black -1px 1px 3px,
+    black -1px -1px 3px;
+  white-space: nowrap;
+  color: #CCBBAB;
+}
+
+/*游戏时间显示*/
+.cardRoundNumber > .time {
+  bottom: 48px;
+  font-size: 18px;
+  left: -56px;
+  color: #CCBBAB;
+  /*font-size: 0px;*/
+}
+
+/*记牌器#1837*/
+.popupContainer.deckMonitor {
+    width: 100%;
+    height: 100%;
+    /* background-color: rgb(44 39 39 / 38%); */
+    z-index: 9;
+	background-color: rgba(0, 0, 0, 0.35);
+}
+
+.popupContainer.deckMonitor * {
+    text-shadow: none;
+    box-sizing: border-box;
+}
+
+.popupContainer.deckMonitor .deckMonitor {
+    /* --bgColor: rgb(87 151 164); */
+    width: 80%;
+    height: 75%;
+    /* background-color: var(--bgColor); */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.popupContainer.deckMonitor .deckMonitor .title {
+    width: 100%;
+    height: 10%;
+    top: 0%;
+    /* background-color: var(--bgColor); */
+    font-size: 1.5em;
+    /* color: #fff5f5; */
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	background: rgba(0, 0, 0, 0.2);
+	box-shadow: rgba(0, 0, 0, 0.2) 0 0 0 1px;
+	border-radius: 6px 6px 0 0;
+}
+
+.popupContainer.deckMonitor .deckMonitor .title span {
+    text-decoration: underline;
+    font-size: 0.8em;
+    /* color: yellow; */
+    font-weight: lighter;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer {
+    width: 100%;
+    height: 90%;
+    bottom: 0%;
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    box-sizing: border-box;
+	background: rgba(0, 0, 0, 0.2);
+	box-shadow: rgba(0, 0, 0, 0.2) 0 0 0 1px;
+	border-radius: 0 0 6px 6px;
+
+    /* 滚动方案开启，压缩方案关闭 */
+    overflow-x: scroll;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer * {
+    position: relative;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer .columnContainer {
+    background: rgba(0, 0, 0, 0.2);
+    height: 100%;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 100px;
+    margin: 0 5px;
+    padding: 3px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    max-width: calc(100% / 6);
+    /* 滚动方案开启，压缩方案关闭 */
+    min-width: calc(100% / 6.42);
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer .columnContainer .subtitle {
+    width: 100%;
+    text-align: center;
+    flex-grow: 0;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+    flex-shrink: 0;
+
+    overflow: scroll;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer .columnContainer .itemContainer {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    align-items: center;
+    overflow: auto;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer .columnContainer .itemContainer .itemCount {
+    display: flex;
+    flex: 1 3 30px;
+    flex-shrink: 0;
+    overflow: visible;
+    font-size: 0.9em;
+    justify-content: center;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer .columnContainer .itemContainer .item {
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    width: 98%;
+    margin-top: 4px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer .columnContainer .itemContainer .item:hover {
+    box-shadow: 0 0 2px 1.5px yellow;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer .columnContainer .itemContainer .item .itemName {
+    background: rgba(128,128,128, 0.95);
+    margin: 5px 2px;
+    border-radius: 5px;
+    color: white;
+    text-shadow: none;
+    padding: 2px;
+    font-size: 0.9em;
+    flex: 1 5 50px;
+    justify-content: center;
+    display: flex;
+	min-width: 66%;
+}
+
+.popupContainer.deckMonitor .deckMonitor .contentContainer .columnContainer .itemContainer .item .tip {
+    position: absolute;
+    background: rgba(128,128,128, 0.95);
+    width: 100%;
+    height: fit-content;
+    z-index: 1;
+    padding: 6px;
+    color: white;
+    border: 2px solid #45B729;
+    border-radius: 2px;
+    left: 0;
+    display: none;
+}
