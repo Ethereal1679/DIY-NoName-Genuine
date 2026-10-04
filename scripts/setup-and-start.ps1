@@ -34,9 +34,9 @@ function Invoke-Pnpm([string[]]$Arguments, [string]$WorkingDirectory = $Root) {
 	Push-Location $WorkingDirectory
 	try {
 		if ($script:PnpmMode -eq "direct") {
-			& $script:PnpmPath @Arguments
+			& $script:PnpmPath @Arguments | Out-Host
 		} else {
-			& $script:CorepackPath pnpm @Arguments
+			& $script:CorepackPath pnpm @Arguments | Out-Host
 		}
 		return [int]$LASTEXITCODE
 	} finally {
@@ -85,10 +85,10 @@ function Get-MirrorCandidates([string]$Version, [string]$Arch) {
 		"https://github.com/electron/electron/releases/download/"
 	)
 	return $mirrors | ForEach-Object {
-		$base = $_.TrimEnd("/") + "/$Version/"
+		$base = $_.TrimEnd("/") + "/"
 		[PSCustomObject]@{
 			Base = $base
-			Url = $base + $file
+			Url = $base + "v$Version/$file"
 			File = $file
 		}
 	}
@@ -186,14 +186,15 @@ try {
 	$electronVersion = Get-ElectronVersion
 	$electronArch = Get-ElectronArch
 	$electronFile = "electron-v$electronVersion-win32-$electronArch.zip"
-	$mirror = Select-ElectronMirror $electronVersion $electronArch
 	$cached = Find-CachedElectronZip $electronFile
+	$offlineCache = [bool]$cached
+	$mirror = if ($cached) { Get-MirrorCandidates $electronVersion $electronArch | Select-Object -First 1 } else { Select-ElectronMirror $electronVersion $electronArch }
 
 	if ($mirror) {
 		$env:ELECTRON_MIRROR = $mirror.Base
 		$env:npm_config_electron_mirror = $mirror.Base
 		$env:NPM_CONFIG_ELECTRON_MIRROR = $mirror.Base
-		Write-Ok "Electron 镜像：$($mirror.Base)"
+		if ($offlineCache) { Write-Ok "Electron 镜像不可用，将复用本地缓存" } else { Write-Ok "Electron 镜像：$($mirror.Base)" }
 	} else {
 		Write-Host "    当前无法访问预设 Electron 镜像。" -ForegroundColor Yellow
 	}
@@ -214,29 +215,24 @@ try {
 	}
 
 	$projects = @(
-		[PSCustomObject]@{ Path = $Root; Name = "根项目"; Electron = $false },
-		[PSCustomObject]@{ Path = (Join-Path $Root "apps\core"); Name = "游戏核心"; Electron = $false },
-		[PSCustomObject]@{ Path = (Join-Path $Root "packages\fs"); Name = "文件服务"; Electron = $false },
-		[PSCustomObject]@{ Path = $ElectronProject; Name = "Electron 客户端"; Electron = $true }
+		$Root,
+		(Join-Path $Root "apps\core"),
+		(Join-Path $Root "packages\fs"),
+		$ElectronProject
 	)
+	$needsInstall = $projects | Where-Object { Test-Path (Join-Path $_ "package.json") } | Where-Object { Needs-Install $_ } | Select-Object -First 1
+	if ($needsInstall) {
+		Write-Step "安装项目依赖"
+		$exitCode = Invoke-Pnpm @("install", "--frozen-lockfile", "--prefer-offline", "--config.confirmModulesPurge=false") $Root
+		if ($exitCode -ne 0) { Fail "项目依赖安装失败。请检查网络后再次双击本脚本。" }
+	} else {
+		Write-Ok "项目依赖已就绪，跳过安装"
+	}
 
-	foreach ($project in $projects) {
-		if (-not (Test-Path -LiteralPath (Join-Path $project.Path "package.json"))) { continue }
-		$needsInstall = if ($project.Electron) { Needs-Install $project.Path -Electron } else { Needs-Install $project.Path }
-		if (-not $needsInstall) {
-			Write-Ok "$($project.Name) 依赖已就绪，跳过安装"
-			continue
-		}
-
-		Write-Step "安装 $($project.Name) 依赖"
-		$exitCode = 1
-		if ($project.Electron) {
-			$exitCode = Invoke-Pnpm @("install", "--ignore-scripts", "--frozen-lockfile", "--prefer-offline", "--config.confirmModulesPurge=false") $project.Path
-			if ($exitCode -eq 0) { $exitCode = Invoke-Pnpm @("rebuild", "esbuild", "electron") $project.Path }
-		} else {
-			$exitCode = Invoke-Pnpm @("install", "--frozen-lockfile", "--prefer-offline", "--config.confirmModulesPurge=false") $project.Path
-		}
-		if ($exitCode -ne 0) { Fail "$($project.Name) 依赖安装失败。请检查网络、代理或 Electron 缓存后再次双击本脚本。" }
+	if (-not (Test-ElectronReady)) {
+		Write-Step "准备 Electron 客户端"
+		$exitCode = Invoke-Pnpm @("--filter", "@noname/electron", "rebuild", "esbuild", "electron") $Root
+		if ($exitCode -ne 0) { Fail "Electron 客户端准备失败。请检查网络、代理或 Electron 缓存后再次双击本脚本。" }
 	}
 
 	if (-not (Test-ElectronReady)) { Fail "Electron 二进制仍未准备好。请确认 Electron 镜像可访问，或将 $electronFile 放入 $ElectronCache。" }

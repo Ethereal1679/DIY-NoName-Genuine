@@ -26,10 +26,11 @@ export default class ArrayCompiler extends ContentCompilerBase {
 					break;
 				}
 				compiler.beforeExecute(event);
+				const step = event.step;
 				event.step++;
 				let result: Result | undefined;
 				if (!compiler.isPrevented(event)) {
-					const original = content[event.step];
+					const original = content[step];
 					result = await Reflect.apply(original, this, [event, event._trigger, event.player, event._result]);
 				}
 				const nextResult = await event.waitNext();

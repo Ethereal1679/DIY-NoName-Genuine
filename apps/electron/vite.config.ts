@@ -5,6 +5,17 @@ export default defineConfig({
 	resolve: {
 		extensions: [".ts", ".mts", ".cts", ".js"],
 	},
+	server: {
+		host: "127.0.0.1",
+		port: 8080,
+		strictPort: true,
+		proxy: {
+			"/": {
+				target: "http://127.0.0.1:8081",
+				ws: true,
+			},
+		},
+	},
 	plugins: [
 		electron([
 			{
