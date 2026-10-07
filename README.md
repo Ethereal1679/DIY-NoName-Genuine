@@ -36,14 +36,14 @@ ctrl + shift + r
 
 双击`一键启动.bat`，一键检测当前安装环境，一键安装。下面是成功一键启动的cli：
 
-![成功启动](readme_images\success_cli_image.png)
+![成功启动](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/success_cli_image.png)
 
 双击`一键清理旧占用进程.bat`，一键清理过去重复启动导致的端口以及进程占用的问题，非必要可以不使用，仅作调试。
 
 # 4.1. 局域网联机
 局域网联机在联机配置的时候，输入主机的IP地址即可，默认端口:`8082`
 
-![Device Guide](readme_images\connect_image.png)
+![Device Guide](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/connect_image.png)
 
 
 
@@ -58,18 +58,18 @@ ctrl + shift + r
 ## 4.2.1. 主机
 主机添加其他人设备的`device id`：
 
-![Device Guide](readme_images\device_add_guide.png)
+![Device Guide](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/device_add_guide.png)
 
 
 ## 4.2.2. 其他人的设备
 安装zerotier后可见下面的这些参数：
 添加主机的`network id`：
 
-![Other Device](readme_images\other_devices.jpg)
+![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/other_devices.jpg)
 
 # 5. demo
 
-![Other Device](readme_images\demo_image1.png)
+![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/demo_image1.png)
 
 # 6. 写在后面
 笔者也尝试在其他版本（比如`https://github.com/lieren2023/noname-for-dummies`）上进行修改，但是碍于该项目近些年作者没有维护，导致仍使用一些旧版本的兼容模式，导致新版本的手杀等
