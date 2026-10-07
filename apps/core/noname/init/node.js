@@ -7,7 +7,10 @@ export default function nodeReady({ lib, game, get, _status, ui }) {
 		// 在http环境下修改__dirname和require的逻辑
 		if (window.__dirname.endsWith("electron.asar\\renderer") || window.__dirname.endsWith("electron.asar/renderer")) {
 			const path = require("path");
-			if (window.process.platform === "darwin") {
+			const electronApp = require("@electron/remote").app;
+			if (!electronApp.isPackaged) {
+				window.__dirname = path.resolve(electronApp.getAppPath(), "../core");
+			} else if (window.process.platform === "darwin") {
 				//@ts-ignore
 				window.__dirname = path.join(window.process.resourcesPath, "app");
 			} else {
