@@ -20688,9 +20688,22 @@ if(!(lib.config.extensions.contains("手杀ui")&&lib.config.extension_手杀ui_e
 						    lib.element.content['throwJudgeCallback'] = async function(event){
 								let callback = event.parent.overrides.callback;
 								if (callback) {
-									callback = lib.init.parsex(callback);
-									event.parent.overrides.callback = callback;
-									await callback.call(this, event);
+									// Run the judge callback on its own event so its compiler does not
+									// share the step counter of this wrapper event.
+									const callbackEvent = game.createEvent('judgeCallback', false, event.parent);
+									callbackEvent.player = event.player;
+									callbackEvent.card = event.card;
+									callbackEvent.judgeResult = event.judgeResult;
+									callbackEvent._trigger = event._trigger;
+									callbackEvent._result = event._result;
+									callbackEvent.forceDie = event.forceDie;
+									callbackEvent.includeOut = event.includeOut;
+									callbackEvent.setContent(callback);
+									try {
+										await callbackEvent.start();
+									} finally {
+										event.parent.next.remove(callbackEvent);
+									}
 								}
 								var card = event.judgeResult.card.clone;
 								var apcard = event.parent.apcard;

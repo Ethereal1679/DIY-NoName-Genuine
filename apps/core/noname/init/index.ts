@@ -1062,15 +1062,27 @@ async function createBackground() {
 	if (!lib.config.image_background) {
 		return;
 	}
-	if (lib.config.image_background === "default") {
-		return;
+
+	let background = lib.config.image_background;
+	if (background === "default") {
+		// The simple theme's default is the bundled OL background. Set it on the
+		// game background layer so theme/extension styles cannot hide it on startup.
+		if (lib.config.theme === "simple") {
+			background = "ol_bg";
+		} else {
+			const themeBackground = getComputedStyle(document.documentElement).backgroundImage;
+			if (themeBackground && themeBackground !== "none") {
+				return;
+			}
+			background = "ol_bg";
+		}
 	}
 
-	let url = `url("${lib.assetURL}image/background/${lib.config.image_background}.jpg")`;
+	let url = `url("${lib.assetURL}image/background/${background}.jpg")`;
 
-	if (lib.config.image_background.startsWith("custom_")) {
+	if (background.startsWith("custom_")) {
 		try {
-			const fileToLoad = await game.getDB("image", lib.config.image_background);
+			const fileToLoad = await game.getDB("image", background);
 			const fileReader = new FileReader();
 			const fileLoadedEvent = await new Promise(resolve => {
 				fileReader.onload = resolve;

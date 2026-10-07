@@ -50,14 +50,21 @@ export default abstract class ContentCompilerBase implements IContentCompiler {
 		if (!player) {
 			return false;
 		}
-		if (player.isDead() && !event.forceDie) {
+		// Events created by extensions/reconnect payloads may carry a legacy
+		// player-shaped object without the native Player prototype methods.
+		// Treat missing lifecycle methods as "not prevented" and keep checking
+		// the plain `removed` flag below.
+		const isDead = typeof player.isDead === "function" && player.isDead();
+		const isOut = typeof player.isOut === "function" && player.isOut();
+
+		if (isDead && !event.forceDie) {
 			game.broadcastAll(function () {
 				while (_status.dieClose.length) {
 					_status.dieClose.shift().close();
 				}
 			});
 			event._oncancel?.();
-		} else if (player.isOut() && !event.includeOut) {
+		} else if (isOut && !event.includeOut) {
 			if (event.name == "phase" && player == _status.roundStart && !event.skill) {
 				_status.roundSkipped = true;
 			}

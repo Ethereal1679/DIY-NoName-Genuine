@@ -31,7 +31,10 @@ export default class ArrayCompiler extends ContentCompilerBase {
 				let result: Result | undefined;
 				if (!compiler.isPrevented(event)) {
 					const original = content[step];
-					result = await Reflect.apply(original, this, [event, event._trigger, event.player, event._result]);
+					// Function.prototype.apply can be replaced by the sandbox wrapper;
+					// invoke callbacks through their own call method to support isolated
+					// functions used by legacy judge callbacks.
+					result = await original.call(this, event, event._trigger, event.player, event._result);
 				}
 				const nextResult = await event.waitNext();
 				event._result = result ?? nextResult ?? event._result;
