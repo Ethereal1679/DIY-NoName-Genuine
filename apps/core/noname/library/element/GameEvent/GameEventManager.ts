@@ -42,7 +42,25 @@ export default class GameEventManager {
 			lib.announce.publish<NonameGameEventChangedArgs>("Noname.Game.Event.Changed", [event, oldEvent!]);
 		}
 	}
-	popStatusEvent() {
+	resetStatusEvent(event: GameEvent) {
+		if (!(event instanceof GameEvent)) {
+			return;
+		}
+
+		const oldEvent = this.getStatusEvent();
+		this.eventStack.length = 0;
+		this.tempEvent = void 0;
+		this.rootEvent = event;
+		if (oldEvent == null || event !== oldEvent) {
+			lib.announce.publish<NonameGameEventChangedArgs>("Noname.Game.Event.Changed", [event, oldEvent!]);
+		}
+	}
+	popStatusEvent(event?: GameEvent) {
+		// A reconnect can replace the root event while an old async event is
+		// still unwinding. Do not let that stale event pop the new stack.
+		if (event && this.eventStack.at(-1) !== event) {
+			return;
+		}
 		const lastEvent = this.eventStack.pop();
 		const now = this.getStatusEvent();
 		if (lastEvent == null || lastEvent !== now) {

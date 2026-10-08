@@ -13185,7 +13185,7 @@ export class Library {
 								lib.characterPack[i] = mode.characterPack[i];
 							}
 						}
-						_status.event = lib.element.GameEvent.initialGameEvent();
+						_status.resetEvent(lib.element.GameEvent.initialGameEvent());
 						_status.paused = false;
 						game.createEvent("game", false).setContent(lib.init.startOnline);
 						game.loop();
@@ -13565,7 +13565,7 @@ export class Library {
 					game.arrangePlayers();
 					ui.create.me(true);
 
-					_status.event = lib.element.GameEvent.initialGameEvent();
+					_status.resetEvent(lib.element.GameEvent.initialGameEvent());
 					_status.paused = false;
 					_status.dying = get.parsedResult(state.dying) || [];
 

@@ -27,7 +27,7 @@ const failedJson = <T = any>(code: number, message?: string): JsonResult<T> => (
 
 export const defaultConfig = {
 	server: false,
-	port: 8089,
+	port: 18767,
 	debug: false,
 	dirname: cwd(),
 };

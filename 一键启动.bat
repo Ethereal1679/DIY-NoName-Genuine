@@ -7,7 +7,7 @@ where node >nul 2>nul || (
 )
 where pnpm >nul 2>nul || call npm install -g pnpm || goto fail
 
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\setup-and-start.ps1" -Mode Electron
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\setup-and-start.ps1" -Mode Electron -StartServer
 exit /b %errorlevel%
 
 :fail

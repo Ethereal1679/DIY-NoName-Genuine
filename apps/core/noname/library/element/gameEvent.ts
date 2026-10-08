@@ -239,7 +239,7 @@ export class GameEvent implements PromiseLike<void> {
 			this.manager.setStatusEvent(this, true);
 			await this.loop().then(() => {
 				// this.manager.eventStack.pop();
-				this.manager.popStatusEvent();
+				this.manager.popStatusEvent(this);
 			});
 		})();
 		return this.#start;

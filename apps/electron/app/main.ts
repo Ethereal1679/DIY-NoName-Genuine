@@ -7,7 +7,7 @@ import createApp from "@noname/fs";
 remote.initialize();
 const dirname = path.join(import.meta.dirname, "../");
 createApp({
-	port: 8089,
+	port: 18767,
 	dirname,
 	server: true,
 });
@@ -94,9 +94,9 @@ function createMainWindow() {
 		},
 	});
 	if (import.meta.env.DEV) {
-		win.loadURL(`http://127.0.0.1:8080`);
+		win.loadURL(`http://127.0.0.1:18765`);
 	} else {
-		win.loadURL(`http://localhost:8089/index.html`);
+		win.loadURL(`http://localhost:18767/index.html`);
 	}
 	remote.enable(win.webContents);
 	const menuTemplate: Electron.MenuItemConstructorOptions[] = [

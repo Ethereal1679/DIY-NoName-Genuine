@@ -7,11 +7,11 @@ export default defineConfig({
 	},
 	server: {
 		host: "127.0.0.1",
-		port: 8080,
+		port: 18765,
 		strictPort: true,
 		proxy: {
 			"/": {
-				target: "http://127.0.0.1:8081",
+				target: "http://127.0.0.1:18766",
 				ws: true,
 			},
 		},

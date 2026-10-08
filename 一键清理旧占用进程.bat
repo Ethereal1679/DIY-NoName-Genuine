@@ -10,7 +10,7 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-set PORTS=8081 8082 8083 8084
+set PORTS=18765 18766 18767 8082
 
 echo ==== 清理前占用情况 ====
 for %%P in (%PORTS%) do (

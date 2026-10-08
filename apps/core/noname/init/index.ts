@@ -34,7 +34,7 @@ export async function boot() {
 	lib.ui = ui;
 	lib.ai = ai;
 	lib.game = game;
-	_status.event = lib.element.GameEvent.initialGameEvent();
+	_status.resetEvent(lib.element.GameEvent.initialGameEvent());
 
 	setWindowListener();
 	setOnError({ lib, game, get, _status });

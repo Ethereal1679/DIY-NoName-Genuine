@@ -65,13 +65,13 @@ export default () => {
 				}
 				if (window.location.protocol === "http:") {
 					const fallback = new URL(window.location.href);
-					fallback.port = "8089";
+					fallback.port = "18767";
 					fallback.pathname = "/networkInterfaces";
 					fallback.search = "";
 					fallback.hash = "";
 					urls.push(fallback.href);
 				} else if (window.location.protocol === "file:") {
-					urls.push("http://127.0.0.1:8089/networkInterfaces");
+					urls.push("http://127.0.0.1:18767/networkInterfaces");
 				}
 				return [...new Set(urls)];
 			};

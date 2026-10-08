@@ -2,7 +2,8 @@
 param(
 	[ValidateSet("Electron", "Web")]
 	[string]$Mode = "Electron",
-	[switch]$InstallOnly
+	[switch]$InstallOnly,
+	[switch]$StartServer
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,6 +43,25 @@ function Invoke-Pnpm([string[]]$Arguments, [string]$WorkingDirectory = $Root) {
 	} finally {
 		Pop-Location
 	}
+}
+
+function Start-ServerWindow {
+	$pnpmCommand = if ($script:PnpmMode -eq "direct") {
+		'"' + $script:PnpmPath + '"'
+	} else {
+		'"' + $script:CorepackPath + '" pnpm'
+	}
+	$serverCommand = "$pnpmCommand -F @noname/server dev"
+
+	$startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+	$startInfo.FileName = $env:ComSpec
+	$startInfo.Arguments = "/c start `"Noname Server`" /D `"$Root`" $env:ComSpec /k `"$serverCommand`""
+	$startInfo.WorkingDirectory = $Root
+	$startInfo.UseShellExecute = $false
+	$startInfo.CreateNoWindow = $true
+	$launcher = [System.Diagnostics.Process]::Start($startInfo)
+	$launcher.Dispose()
+	Write-Ok "联机服务已在新窗口启动（端口 8082）"
 }
 
 function Get-Sha256String([string]$Value) {
@@ -242,6 +262,8 @@ try {
 		Write-Host "`n依赖安装完成。下次可直接双击 start-electron.bat 启动。" -ForegroundColor Green
 		exit 0
 	}
+
+	if ($StartServer) { Start-ServerWindow }
 
 	Write-Step $(if ($Mode -eq "Web") { "启动网页开发环境" } else { "启动 Electron 开发环境" })
 	$exitCode = if ($Mode -eq "Web") { Invoke-Pnpm @("dev") $Root } else { Invoke-Pnpm @("dev") $ElectronProject }

@@ -63,7 +63,8 @@ ctrl + shift + r
 
 ## 4.2.2. 其他人的设备
 安装zerotier后可见下面的这些参数：
-添加主机的`network id`：
+
+添加主机的`network id`
 
 ![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/other_devices.jpg)
 

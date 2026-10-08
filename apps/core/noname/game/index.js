@@ -3534,7 +3534,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		ui.window.classList.remove("leftbar");
 		ui.window.classList.remove("rightbar");
 		ui.historybar.style.display = "none";
-		_status.event = next;
+		_status.resetEvent(next);
 		_status.paused = false;
 		_status.paused2 = false;
 		_status.over = false;
@@ -7943,7 +7943,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			//     lib.config.addedpile=pilecfg[1]||{};
 			// }
 
-			_status.event = lib.element.GameEvent.initialGameEvent();
+			_status.resetEvent(lib.element.GameEvent.initialGameEvent());
 			_status.paused = false;
 
 			if (_status.connectMode && lib.mode[name].connect) {
