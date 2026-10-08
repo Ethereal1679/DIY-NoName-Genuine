@@ -20,6 +20,9 @@ export default defineConfig({
 		electron([
 			{
 				entry: "app/main.ts",
+				onstart({ startup }) {
+					startup(["dist/app/main.js", "--no-sandbox"]);
+				},
 				vite: {
 					build: {
 						outDir: "dist/app/",
