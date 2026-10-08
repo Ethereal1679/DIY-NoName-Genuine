@@ -20,6 +20,9 @@ rem Rebuild the Electron main/preload/renderer output before starting developmen
 call pnpm --filter @noname/electron build
 if errorlevel 1 goto fail
 
+rem Start the online WebSocket server on port 8082 in its own window.
+start "Noname Online Server (8082)" /D "%~dp0" cmd /k "pnpm --filter @noname/server dev"
+
 rem Start the Electron development environment (including the core renderer server).
 call pnpm --filter @noname/electron dev
 set "DEV_CODE=%errorlevel%"

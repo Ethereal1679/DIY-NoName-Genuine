@@ -9,7 +9,7 @@ if %errorlevel% neq 0 (
     powershell -Command "Start-Process '%~f0' -Verb RunAs"
     exit /b
 )
-
+:: 设置要清理的端口列表
 set PORTS=18765 18766 18767 8082
 
 echo ==== 清理前占用情况 ====
