@@ -12779,9 +12779,20 @@ export class Library {
 				}
 			},
 			onconnection: id => {
+				// Reconnection can forward packets before the host has rebuilt its
+				// online client list; defer those packets until the NodeWS is ready.
 				const attach = () => {
 					if (lib.node?.clients && game.connectPlayers) {
-						lib.init.connection((lib.wsOL[id] = new lib.element.NodeWS(id)));
+						const sockets = lib.wsOL || (lib.wsOL = {});
+						const ws = sockets[id] || (sockets[id] = new lib.element.NodeWS(id));
+						if (typeof ws.onmessage !== "function") {
+							lib.init.connection(ws);
+						}
+						const pending = lib.wsOLPending?.[id];
+						if (pending?.length && typeof ws.onmessage === "function") {
+							delete lib.wsOLPending[id];
+							for (const message of pending) ws.onmessage(message);
+						}
 						return;
 					}
 					setTimeout(attach, 50);
@@ -12789,13 +12800,22 @@ export class Library {
 				attach();
 			},
 			onmessage: function (id, message) {
-				if (lib.wsOL[id]) {
-					lib.wsOL[id].onmessage(message);
+				const sockets = lib.wsOL || (lib.wsOL = {});
+				const ws = sockets[id] || (sockets[id] = new lib.element.NodeWS(id));
+				if (typeof ws.onmessage === "function") {
+					ws.onmessage(message);
+				} else {
+					const pending = lib.wsOLPending || (lib.wsOLPending = {});
+					(pending[id] || (pending[id] = [])).push(message);
 				}
 			},
 			onclose: function (id) {
-				if (lib.wsOL[id]) {
-					lib.wsOL[id].onclose();
+				if (lib.wsOLPending) delete lib.wsOLPending[id];
+				const ws = lib.wsOL?.[id];
+				if (typeof ws?.onclose === "function") {
+					ws.onclose();
+				} else if (ws) {
+					delete lib.wsOL[id];
 				}
 			},
 			selfclose: function () {
