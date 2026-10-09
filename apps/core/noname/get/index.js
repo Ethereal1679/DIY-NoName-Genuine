@@ -5473,7 +5473,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				var js = node.getCards("j");
 				for (var i = 0; i < js.length; i++) {
 					const Vcard = js[i][js[i].cardSymbol];
-					if (js[i].viewAs && Vcard.cards.length == 1 && js[i].viewAs != Vcard.cards[0].name) {
+					if (js[i].viewAs && Vcard?.cards?.length == 1 && js[i].viewAs != Vcard.cards[0].name) {
 						let html = Vcard.cards[0].outerHTML;
 						let cardInfo = lib.card[js[i].viewAs],
 							showCardIntro = true;

@@ -72,7 +72,13 @@ ctrl + shift + r
 
 ![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/demo_image1.png)
 
-# 6. 写在后面
+# 6. F&P (Frequent Problems)
+
+经常性遇到下面的问题：
+![alt text](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/startup_issues.png)
+
+
+# 7. 写在后面
 笔者也尝试在其他版本（比如`https://github.com/lieren2023/noname-for-dummies`）上进行修改，但是碍于该项目近些年作者没有维护，导致仍使用一些旧版本的兼容模式，导致新版本的手杀等
 武将没办法很容易的兼容进去（但是该版本的美化等都预先处理好了，而且效果不错），所以我最终选择使用这个仍在维护的无名杀官方版本分别添加：
 - 联机功能：支持局域网联机以及公网联机
