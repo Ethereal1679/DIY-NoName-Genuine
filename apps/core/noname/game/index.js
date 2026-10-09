@@ -7244,6 +7244,11 @@ ${e instanceof Error ? e.stack : String(e)}`);
 							ui.exit.stay = true;
 							ui.exit.firstChild.innerHTML = "返回房间";
 						}
+						if (game.online && typeof game.roomId == "string") {
+							game.saveConfig("tmp_user_roomId", game.roomId);
+							localStorage.setItem(lib.configprefix + "directstart", true);
+							setTimeout(game.reload, 100);
+						}
 					});
 					game.send("server", "reset");
 					game.saveConfig("tmp_owner_roomId", game.roomId);
