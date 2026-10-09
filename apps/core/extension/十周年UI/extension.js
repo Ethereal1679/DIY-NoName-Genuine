@@ -14,12 +14,48 @@ content:function(config, pack){
 	var extensionName = '十周年UI';
 	var extension = lib.extensionMenu['extension_' + extensionName];
 	var extensionPath = lib.assetURL + 'extension/' + extensionName + '/';
+	var layoutReminderConfig = 'hideLayoutReminder';
+	var showLayoutReminder = function () {
+		var promptContainer = ui.create.div('.popup-container', ui.window, function () {
+			if (this.clicked) {
+				this.clicked = false;
+			} else {
+				promptContainer.remove();
+			}
+		});
+		var dialogContainer = ui.create.div('.prompt-container', promptContainer);
+		var dialog = ui.create.div('.menubg', ui.create.div(dialogContainer), function () {
+			promptContainer.clicked = true;
+		});
+		var message = ui.create.div('', dialog);
+		message.textContent = '十周年UI提醒您，请使用<新版>布局以获得良好体验（在选项-外观-布局中调整）。';
+		var option = ui.create.div('', dialog);
+		option.style.margin = '12px 0 4px';
+		option.style.textAlign = 'left';
+		var checkbox = ui.create.node('input', option);
+		checkbox.type = 'checkbox';
+		checkbox.style.verticalAlign = 'middle';
+		var label = ui.create.div('', '不再显示', option);
+		label.style.display = 'inline-block';
+		label.style.marginLeft = '6px';
+		label.style.verticalAlign = 'middle';
+		label.addEventListener('click', function () {
+			checkbox.checked = !checkbox.checked;
+		});
+		var controls = ui.create.div('', dialog);
+		ui.create.div('.menubutton.large', '确定', controls, function () {
+			if (checkbox.checked) {
+				game.saveExtensionConfig(extensionName, layoutReminderConfig, true);
+			}
+			promptContainer.remove();
+		});
+	};
 	
 	if (!(extension && extension.enable && extension.enable.init)) return;
 	
 	// 非战棋/塔防/炉石模式，弹出使用<新版>布局提示
-	if(!['chess','tafang','stone'].includes(get.mode()) && lib.config.layout!='nova'){
-		alert('十周年UI提醒您，请使用<新版>布局以获得良好体验（在选项-外观-布局中调整）。');
+	if(!['chess','tafang','stone'].includes(get.mode()) && lib.config.layout!='nova' && !game.getExtensionConfig(extensionName, layoutReminderConfig)){
+		showLayoutReminder();
 	}
 	/*
 	// 战棋/塔防/炉石模式，弹出关闭十周年UI、手杀ui等扩展提示
