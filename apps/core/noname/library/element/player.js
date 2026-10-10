@@ -2901,6 +2901,7 @@ export class Player extends HTMLDivElement {
 		var emotion = ui.create.div("", '<div style="text-align:center"> <img src="' + lib.assetURL + "image/emotion/throw_emotion/" + name + '1.png"> </div>', game.chess ? ui.chess : ui.window);
 		emotion.style.width = "60px";
 		emotion.style.height = "60px";
+		emotion.style.pointerEvents = "none";
 		var width = emotion.offsetWidth / 2;
 		var height = emotion.offsetHeight / 2;
 		if (game.chess) {
