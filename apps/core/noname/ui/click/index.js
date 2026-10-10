@@ -735,6 +735,10 @@ export class Click {
 		}
 	}
 	identity(e) {
+		//按住Ctrl/Shift点击为投掷交互表情，跳过身份标记
+		if (e && (e.ctrlKey || e.shiftKey)) {
+			return;
+		}
 		if (_status.dragged) {
 			return;
 		}
@@ -2742,7 +2746,11 @@ export class Click {
 			});
 		}
 	}
-	avatar() {
+	avatar(e) {
+		//按住Ctrl/Shift点击为投掷交互表情，不参与双击查看武将资料
+		if (e && (e.ctrlKey || e.shiftKey)) {
+			return;
+		}
 		if (!lib.config.doubleclick_intro) {
 			return;
 		}
@@ -2772,7 +2780,11 @@ export class Click {
 		var audioName = player.skin.name || player.name1 || player.name;
 		ui.click.charactercard(player.name1 || player.name, null, null, true, this, audioName);
 	}
-	avatar2() {
+	avatar2(e) {
+		//按住Ctrl/Shift点击为投掷交互表情，不参与双击查看武将资料
+		if (e && (e.ctrlKey || e.shiftKey)) {
+			return;
+		}
 		if (!lib.config.doubleclick_intro) {
 			return;
 		}
@@ -2837,6 +2849,16 @@ export class Click {
 		return ui.click.target.apply(this, arguments);
 	}
 	target(e) {
+		//按住Ctrl/Shift左键点击其他角色：投掷鸡蛋/鲜花（每点一下投一个，无冷却）
+		if (e && (e.ctrlKey || e.shiftKey) && _status.gameStarted && !game.observe && game.me && this != game.me) {
+			var throwEmotionName = e.ctrlKey ? "egg" : "flower";
+			if (game.online) {
+				game.send("throwEmotion", this, throwEmotionName);
+			} else {
+				game.me.throwEmotion(this, throwEmotionName);
+			}
+			return;
+		}
 		if (_status.dragged) {
 			return;
 		}
@@ -4717,6 +4739,19 @@ export class Click {
 		e.stopPropagation();
 	}
 	rightplayer(e) {
+		//按住Ctrl/Shift右键点击其他角色：投掷草鞋/敬酒
+		if (e && (e.ctrlKey || e.shiftKey) && _status.gameStarted && !game.observe && game.me && this != game.me) {
+			var throwEmotionName = e.ctrlKey ? "shoe" : "wine";
+			if (game.online) {
+				game.send("throwEmotion", this, throwEmotionName);
+			} else {
+				game.me.throwEmotion(this, throwEmotionName);
+			}
+			_status.clickedplayer = true;
+			_status.clicked = false;
+			ui.click.longpresscancel.call(this);
+			return false;
+		}
 		if (this._nopup) {
 			return false;
 		}
@@ -4768,6 +4803,10 @@ export class Click {
 		return false;
 	}
 	count(e) {
+		//按住Ctrl/Shift点击为投掷交互表情，跳过手牌数查看
+		if (e && (e.ctrlKey || e.shiftKey)) {
+			return;
+		}
 		if (_status.dragged) {
 			return;
 		}
