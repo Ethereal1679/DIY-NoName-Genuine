@@ -1,6 +1,8 @@
 dist
 output
 node_modules
+# Electron 用户数据目录（localStorage/IndexedDB 等）
+apps/electron/Home
 package-lock.json
 
 # IDE

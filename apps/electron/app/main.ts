@@ -30,15 +30,19 @@ function setPath(path1: any, path2: any) {
 	app.setPath(path1, path2);
 }
 
-setPath("home", path.join(dirname, "Home"));
-setPath("appData", path.join(dirname, "Home", "AppData"));
-setPath("userData", path.join(dirname, "Home", "UserData"));
-setPath("temp", path.join(dirname, "Home", "Temp"));
-setPath("cache", path.join(dirname, "Home", "Cache"));
+//数据目录不能放在 dist 下：vite build 会清空 dist，导致 localStorage/IndexedDB 里的用户配置被重置
+//开发模式放在 apps/electron/Home（dist 之外）；打包后使用系统默认用户数据目录（可写）
+const dataRoot = app.isPackaged ? app.getPath("userData") : path.join(import.meta.dirname, "../../Home");
+
+setPath("home", dataRoot);
+setPath("appData", path.join(dataRoot, "AppData"));
+setPath("userData", path.join(dataRoot, "UserData"));
+setPath("temp", path.join(dataRoot, "Temp"));
+setPath("cache", path.join(dataRoot, "Cache"));
 //崩溃转储文件存储的目录
-setPath("crashDumps", path.join(dirname, "Home", "crashDumps"));
+setPath("crashDumps", path.join(dataRoot, "crashDumps"));
 //日志目录
-setPath("logs", path.join(dirname, "Home", "logs"));
+setPath("logs", path.join(dataRoot, "logs"));
 
 //崩溃处理
 crashReporter.start({
