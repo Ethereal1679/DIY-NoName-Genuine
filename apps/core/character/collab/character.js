@@ -1,19 +1,31 @@
 const characters = {
+	ggbond: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["tangguo", "kangzhang"],
+		names: "null|null",
+	},
+	feifeigongzhu: {
+		sex: "female",
+		group: "qun",
+		hp: 4,
+		skills: ["conghui", "wubang"],
+		names: "null|null",
+	},
 	ol_chitu: {
 		sex: "female",
 		group: "shu",
 		hp: 4,
-		skills: [],
+		skills: ["olfangma", "oljingxian"],
 		names: "null|null",
-		isUnseen: true,
 	},
 	ol_le_menghuo: {
 		sex: "male",
 		group: "shu",
 		hp: 4,
-		skills: [],
+		skills: ["oljunzhu", "olrehuanshi"],
 		groupBorder: "qun",
-		isUnseen: true,
 	},
 	ol_niuma: {
 		sex: "male",
@@ -72,6 +84,12 @@ const characters = {
 		group: "qun",
 		hp: 4,
 		skills: ["twjuyan", "twlihuo", "yingjian", "yiran"],
+	},
+	tw_dm_zhangliang: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["twrenfang", "twjuemie", "twjianming", "relonghun"],
 	},
 	ol_re_nianshou: {
 		sex: "male",
