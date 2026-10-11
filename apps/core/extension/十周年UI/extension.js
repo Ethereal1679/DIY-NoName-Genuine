@@ -15454,7 +15454,6 @@ content:function(config, pack){
 							if(name.startsWith('unknown')){
 								nodeMarkText.innerHTML = get.translation(name)[0];
 							} else {
-								if (!lib.character[name]) return console.error(name);
 								var text = info.name.substr(0, 2);
 								if (text.length == 2) nodeMarkText.classList.add('small-text');
 								nodeMarkText.innerHTML = text;
@@ -15501,12 +15500,14 @@ content:function(config, pack){
 										target: target
 									});
 								} else {
-									player.marks[id] = player.markCharacter(target, {
+									const mark = player.markCharacter(target, {
 										name: name,
 										content: content,
 										id: id
 									});
-									player.marks[id]._name = target;
+									if (!mark) return;
+									player.marks[id] = mark;
+									mark._name = target;
 									game.addVideo('markCharacter', player, {
 										name: name,
 										content: content,

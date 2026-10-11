@@ -10603,12 +10603,14 @@ export class Player extends HTMLDivElement {
 					target: target,
 				});
 			} else {
-				player.marks[id] = player.markCharacter(target, {
+				const mark = player.markCharacter(target, {
 					name: name,
 					content: content,
 					id: id,
 				});
-				player.marks[id]._name = target;
+				if (!mark) return;
+				player.marks[id] = mark;
+				mark._name = target;
 				game.addVideo("markCharacter", player, {
 					name: name,
 					content: content,
@@ -10632,9 +10634,6 @@ export class Player extends HTMLDivElement {
 			node = ui.create.div(".card.mark.drawinghidden");
 			ui.create.div(".background.skillmark", node).innerHTML = get.translation(name)[0];
 		} else {
-			if (!get.character(name)) {
-				return;
-			}
 			node = ui.create.div(".card.mark.drawinghidden").setBackground(name, "character");
 		}
 		this.node.marks.insertBefore(node, this.node.marks.childNodes[1]);

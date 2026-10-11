@@ -9,6 +9,11 @@ export default defineConfig({
 		host: "127.0.0.1",
 		port: 18765,
 		strictPort: true,
+		watch: {
+			// Electron writes Chromium profile files here while the dev server is running.
+			// Watching those transient files can fail on Windows with EBUSY.
+			ignored: ["**/Home/**"],
+		},
 		proxy: {
 			"/": {
 				target: "http://127.0.0.1:18766",
