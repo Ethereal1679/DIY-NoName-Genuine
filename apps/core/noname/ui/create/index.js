@@ -2647,6 +2647,7 @@ export class Create {
 		ui.commonCardPileButton = ui.create.system("公共区域", null, true);
 		ui.commonCardPileButton.style.display = "none";
 		lib.setPopped(ui.commonCardPileButton, ui.click.commonCardPileButton, 220);
+		ui.returnToMenu = ui.create.system("退出至主菜单", game.returnToMenu, true);
 		ui.wuxie = ui.create.system("不询问无懈", ui.click.wuxie, true);
 		if (!lib.config.touchscreen) {
 			lib.setPopped(ui.config2, ui.click.pauseconfig, 170);

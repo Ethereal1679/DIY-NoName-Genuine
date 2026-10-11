@@ -328,17 +328,22 @@ export async function boot() {
 	const toLoad: Promise<any>[] = [];
 
 	let show_splash;
-	switch (config.get("show_splash")) {
-		case "off":
-			show_splash = false;
-			break;
-		case "init":
-			show_splash = !localStorage.getItem("show_splash_off");
-			break;
-		case "always":
-			show_splash = true;
-			break;
+	if (localStorage.getItem("show_splash_on")) {
+		show_splash = true;
+	} else {
+		switch (config.get("show_splash")) {
+			case "off":
+				show_splash = false;
+				break;
+			case "init":
+				show_splash = !localStorage.getItem("show_splash_off");
+				break;
+			case "always":
+				show_splash = true;
+				break;
+		}
 	}
+	localStorage.removeItem("show_splash_on");
 	localStorage.removeItem("show_splash_off");
 
 	if (localStorage.getItem(`${lib.configprefix}playback`)) {

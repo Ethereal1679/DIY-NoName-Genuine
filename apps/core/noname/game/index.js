@@ -4957,6 +4957,24 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			window.location.reload();
 		}
 	}
+	async returnToMenu() {
+		if (_status?.reloading || _status?.returningToMenu) {
+			return;
+		}
+		_status.returningToMenu = true;
+		await Promise.allSettled([
+			game.promises.saveConfig("directstartmode"),
+			game.promises.saveConfig("tmp_owner_roomId"),
+			game.promises.saveConfig("tmp_user_roomId"),
+			game.promises.saveConfig("reconnect_info"),
+		]);
+		localStorage.removeItem(lib.configprefix + "directstart");
+		localStorage.removeItem(lib.configprefix + "playback");
+		localStorage.removeItem(lib.configprefix + "playbackmode");
+		localStorage.setItem("show_splash_on", true);
+		localStorage.removeItem("show_splash_off");
+		game.reload();
+	}
 	reload2() {
 		lib.status.reload--;
 		if (lib.status.reload == 0 && lib.ondb2.length) {
