@@ -1,17 +1,29 @@
-# 1. 无名杀-联机版 + UI美化
-**动机**：笔者最近看到有人使用GPT 6 ASTRA制作了可联机版我的世界，因此心血来潮想做一个联机的三国杀，看到从前佬们其实已经实现了，但是总是缺少一个手杀UI，且联机效果较好的版本（其实只是自己并不是很和自己的胃口hhh），因此借助AI工具（我用的API中转站版的gpt-5.6-sol xhigh），我搞了下面这个小项目，斟酌游玩，里面还是有不少的bug，可以在issue中交流，也可以提PR，不喜轻喷！
+# 无名杀-联机版 + UI美化
+# 1. 写在前面
+**动机**：笔者最近看到有人使用GPT 6 ASTRA制作了可联机版我的世界，因此心血来潮想做一个美化过的可联机的三国杀，看到从前佬们其实已经实现了codebase part，但是总是缺少一个集成手杀UI，且联机效果较好的版本（其实只是大多数版本并不是很和自己的胃口hhh 所以想做一个），因此借助AI工具（我用的API中转站版的gpt-5.6-sol xhigh），我搞了下面这个小项目（烧了大概130+rmb），可以局域网或者非局域网联机，安装和启动只需“一键启动”即可，可以DIY武将，且进行游戏界面的UI美化，看着更舒服一些。（笔者也是老三国杀玩家了）
 
-codebase来自：https://github.com/libnoname/noname 始终最新，社区依然在维护这个项目。因此放弃原来的codebase，转用新的`codebase`。
+**NOTE**：请批判性游玩，里面还是有一些bug，可以在issue中交流，也可以提PR，不喜轻喷！
 
-UI美化插件来自：https://github.com/lieren2023/noname-for-dummies/tree/main/extension 中的棘手魔改版`extension`。
+codebase来自：https://github.com/libnoname/noname ，笔者始终跟进latest，社区依然在维护这个项目。因此放弃原来的codebase，转用当前同步新的`codebase`。
 
-> 感谢佬们的开源！，Orz Orz Orz Orz Orz Orz
+UI美化插件来自：https://github.com/lieren2023/noname-for-dummies/tree/main/extension 中的棘手魔改版`extension`中的手杀UI，以及十周年UI。
+
+> 感谢佬们的为爱发电和辛勤开源！，Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz Orz 这个项目笔者会不定期fresh upstream，保持和佬们的同步更新，让大伙儿可以直接游玩最新武将。
 
 # 2. 设备配置
-默认`windows`，后续再开发移动端和linux的兼容。默认使用chrome内核浏览器
+默认`windows`，后续再开发`移动端`和linux的兼容。浏览器默认使用chrome内核浏览器，但笔者这里使用内置窗口可以不用跳转到浏览器。
 
 
-# 3.1. 从源码安装和启动
+# 3.1. 从懒人安装和启动
+
+双击`一键启动.bat`，一键检测当前安装环境，一键安装。下面是成功一键启动的cli：
+
+![成功启动](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/success_cli_image.png)
+
+双击`一键清理旧占用进程.bat`，一键清理过去重复启动导致的端口以及进程占用的问题，非必要可以不使用，仅作调试。
+
+
+# 3.2. 从源码安装和启动
 默认已经安装了`npm`相关依赖（参考[codebase](https://github.com/libnoname/noname)）
 
 安装
@@ -32,19 +44,11 @@ pnpm dev
 ctrl + shift + r
 ```
 
-# 3.2. 从懒人安装和启动
-
-双击`一键启动.bat`，一键检测当前安装环境，一键安装。下面是成功一键启动的cli：
-
-![成功启动](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/success_cli_image.png)
-
-双击`一键清理旧占用进程.bat`，一键清理过去重复启动导致的端口以及进程占用的问题，非必要可以不使用，仅作调试。
 
 # 4.1. 局域网联机
-局域网联机在联机配置的时候，输入主机的IP地址即可，默认端口:`8082`
+局域网联机在联机配置的时候，输入主机的IP地址即可，默认联机端口:`8082`
 
 ![Device Guide](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/connect_image.png)
-
 
 
 # 4.2. 非局域网联机
@@ -69,13 +73,18 @@ ctrl + shift + r
 ![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/other_devices.jpg)
 
 # 5. demo
-
+更多DEMO通过b站视频发布：
 ![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/demo_image1.png)
 
-# 6. F&P (Frequent Problems)
 
+
+# 6. Logs F&P (Frequent Problems)
 经常性遇到下面的问题：
+
 ![alt text](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/startup_issues.png)
+无视风险，重启加载游戏即可。
+
+但是这个bug目前已经修了 --2026.10.12
 
 
 # 7. 写在后面
