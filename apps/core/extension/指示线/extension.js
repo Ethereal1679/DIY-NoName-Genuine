@@ -808,7 +808,7 @@ game.saveConfig('zuanzhishixian',lib.config['extension_指示线_zhishixian']);
             zhishixian:{
                 "name":"攻击指示特效",
                 intro:"设置卡牌、技能的指示特效",
-                init:lib.config.zuanzhishixian === undefined ? 'moren':lib.config.zuanzhishixian,
+                init:lib.config.zuanzhishixian === undefined ? 'yulong':lib.config.zuanzhishixian,
                 item:{
                     "yulong":"玉龙指示线",
                     "jingdian":"经典指示线",
