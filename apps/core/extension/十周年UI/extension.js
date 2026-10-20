@@ -24234,7 +24234,7 @@ package:{
     author:"短歌<br>魔改：<span class='bluetext'>棘手怀念摧毁</span>",
     diskURL:"",
     forumURL:"",
-    version:"1.10.11.3",
+    version:"1.10.11.4",
 },
 files:{
     "character":[],

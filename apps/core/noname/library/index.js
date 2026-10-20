@@ -5140,9 +5140,10 @@ export class Library {
 						game.saveConfig("volumn_audio", parseInt(volume));
 					},
 				},
+				// 初始背景音乐音量减半
 				volumn_background: {
 					name: "音乐音量",
-					init: 8,
+					init: 4,
 					item: {
 						0: "〇",
 						1: "一",

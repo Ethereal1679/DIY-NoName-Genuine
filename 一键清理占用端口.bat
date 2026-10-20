@@ -1,47 +1,21 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 chcp 65001 >nul
+cd /d "%~dp0"
 
-:: 自动请求管理员权限
 net session >nul 2>&1
-if %errorlevel% neq 0 (
-    echo 正在请求管理员权限...
-    powershell -Command "Start-Process '%~f0' -Verb RunAs"
+if errorlevel 1 (
+    echo Requesting administrator permission...
+    powershell.exe -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
     exit /b
 )
-:: 设置要清理的端口列表
-set PORTS=18765 18766 18767 8082
 
-echo ==== 清理前占用情况 ====
-for %%P in (%PORTS%) do (
-    set FOUND=0
-    for /f "tokens=5" %%I in ('netstat -ano ^| findstr ":%%P " ^| findstr "LISTENING"') do (
-        set FOUND=1
-        echo 端口 %%P 被 PID %%I 占用
-    )
-    if "!FOUND!"=="0" echo 端口 %%P 空闲
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\cleanup-dev-servers.ps1"
+set "CLEANUP_RESULT=%errorlevel%"
+if not "%CLEANUP_RESULT%"=="0" (
+    echo.
+    echo Cleanup did not finish completely. Review the messages above.
 )
-
-echo.
-echo ==== 结束占用端口的进程 ====
-for %%P in (%PORTS%) do (
-    for /f "tokens=5" %%I in ('netstat -ano ^| findstr ":%%P " ^| findstr "LISTENING"') do (
-        echo 结束端口 %%P -^> PID %%I
-        taskkill /F /PID %%I >nul 2>&1
-    )
-)
-
-echo.
-echo ==== 清理残留 node 进程 ====
-taskkill /F /IM node.exe >nul 2>&1
-if %errorlevel%==0 (echo node 进程已清理) else (echo 无残留 node 进程)
-
-echo.
-echo ==== 清理后 ====
-for %%P in (%PORTS%) do (
-    netstat -ano | findstr ":%%P " | findstr "LISTENING" >nul
-    if errorlevel 1 (echo 端口 %%P 已释放) else (echo 端口 %%P 仍被占用！)
-)
-
 echo.
 pause
+exit /b %CLEANUP_RESULT%

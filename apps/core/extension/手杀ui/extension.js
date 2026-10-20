@@ -1292,16 +1292,40 @@ if (document.getElementById("jindutiao")) {
 			_status.as_showImage.remove();
 			delete _status.as_showImage;
 		}
+		if (!ui.arena) return false;
 		var div=ui.create.div('','',ui.arena);
-		div.style.cssText='z-index:1; left:calc(50% - 12px); bottom:111%; width:24px; height:34px; position:absolute; display:block; background-size:100% 100%; background-image:url('+lib.assetURL+url+'); transition-property:all; transition-duration:1';
-		var shoushaUI = document.getElementsByClassName("lbtn-controls");
 		div.classList.add("lbtn-control");
-		shoushaUI[0].firstChild.appendChild(div);
+		var shoushaUI = ui.arena.querySelector(".lbtn-controls");
+		var shoushaControl = shoushaUI && shoushaUI.firstElementChild;
+		if (shoushaControl) {
+			div.style.cssText='z-index:1; left:calc(50% - 12px); bottom:111%; width:24px; height:34px; position:absolute; display:block; background-size:100% 100%; background-image:url('+lib.assetURL+url+'); transition-property:all; transition-duration:1s';
+			shoushaControl.appendChild(div);
+		} else {
+			var fallbackPos = Array.isArray(pos) && pos.length >= 4 && pos.every(Number.isFinite) ? pos : null;
+			if (!fallbackPos) {
+				if (lib.device) {
+					fallbackPos = lib.config.ui_zoom == 'normalh' ? [93.78,56,6.632,6.632] : [93.46,53.7,7,7];
+				} else if (lib.config.ui_zoom == 'normala') {
+					fallbackPos = [93.69,60.19,6.74,6.74];
+				} else if (lib.config.ui_zoom == 'normalg') {
+					fallbackPos = [95.4,70.8,4.926,4.926];
+				} else {
+					fallbackPos = [93.45,61.28,7,7];
+				}
+			}
+			div.style.cssText='z-index:1; left:'+(fallbackPos[0]+fallbackPos[2]/2)+'%; top:'+fallbackPos[1]+'%; width:0%; height:'+fallbackPos[3]+'%; position:absolute; display:block; background-size:100% 100%; background-position:center center; background-image:url('+lib.assetURL+url+'); transition-property:all; transition-duration:1s';
+			setTimeout(function(){
+				div.style.left=fallbackPos[0]+'%';
+				div.style.width=fallbackPos[2]+'%';
+			},1);
+		}
 		_status.as_showImage=div;
-		setTimeout(function(){
-			div.style.left='calc(50% - 33px)';
-			div.style.width='66px';
-		},1);
+		if (shoushaControl) {
+			setTimeout(function(){
+				div.style.left='calc(50% - 33px)';
+				div.style.width='66px';
+			},1);
+		}
 		
         setTimeout(function(){
             if(_status.as_showImage){
@@ -1413,7 +1437,7 @@ game.as_removeImage=function(){
 		"jindutiao": {
 			"name": "进度条(回合内)",
 			"intro": "自己回合内显示进度条，可选择烧条结束后是否托管，手动重启后生效。<br>注意：开启后可在游戏中切换烧条结束后是否托管，即时生效。",
-			"init":lib.config.jindutiao === undefined ? "off" : lib.config.jindutiao,
+			"init":lib.config.jindutiao === undefined ? "jieshutg" : lib.config.jindutiao, // zsy修改，默认off改为jieshutg
 			"item": {
 				"off":"关闭",
 				"jieshutg":"烧条结束托管",
@@ -1427,7 +1451,7 @@ game.as_removeImage=function(){
 		JDTS: {
 			name: "阶段提示(回合内)",
 			intro: "自己回合内显示对应阶段图片提示，手动重启后生效。",
-			init: false,
+			init: true, // zsy修改，更改为true
 		},
 		"ssuishowFPS":{
 			"name":"FPS显示",
