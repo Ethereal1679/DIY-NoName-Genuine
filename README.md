@@ -13,7 +13,7 @@ UI美化插件来自：https://github.com/lieren2023/noname-for-dummies/tree/mai
 # 2. 设备配置
 默认`windows`，后续再开发`移动端`和linux的兼容。浏览器默认使用chrome内核浏览器，但笔者这里使用内置窗口可以不用跳转到浏览器。
 
-
+# 3. 安装
 # 3.1. 从懒人安装和启动
 
 双击`一键启动.bat`，一键检测当前安装环境，一键安装。下面是成功一键启动的cli：
@@ -44,7 +44,7 @@ pnpm dev
 ctrl + shift + r
 ```
 
-
+# 4. 联机
 # 4.1. 局域网联机
 局域网联机在联机配置的时候，输入主机的IP地址即可，默认联机端口:`8082`
 
@@ -72,13 +72,20 @@ ctrl + shift + r
 
 ![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/other_devices.jpg)
 
+
 # 5. demo
-更多DEMO通过b站视频发布：
+更多DEMO通过b站视频发布：https://www.bilibili.com/video/BV1H8pR6DEv7/?vd_source=dbf0a5b21ee3e608136d2de2f7aa4035
 ![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/demo_image1.png)
 
 
+# 6. 重要更新日志
+**--2026.10.20**
 
-# 6. Logs F&P (Frequent Problems)
+添加手杀风格玉龙指示线extension：
+![point line](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/pointing_line.jpg)
+
+
+# 7. Logs F&P (Frequent Problems)
 经常性遇到下面的问题：
 
 ![alt text](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/startup_issues.png)
@@ -87,7 +94,7 @@ ctrl + shift + r
 但是这个bug目前已经修了 --2026.10.12
 
 
-# 7. 写在后面
+# 8. 写在后面
 笔者也尝试在其他版本（比如`https://github.com/lieren2023/noname-for-dummies`）上进行修改，但是碍于该项目近些年作者没有维护，导致仍使用一些旧版本的兼容模式，导致新版本的手杀等
 武将没办法很容易的兼容进去（但是该版本的美化等都预先处理好了，而且效果不错），所以我最终选择使用这个仍在维护的无名杀官方版本分别添加：
 - 联机功能：支持局域网联机以及公网联机
