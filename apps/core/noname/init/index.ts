@@ -7,6 +7,7 @@ import { security, initializeSandboxRealms } from "@/util/sandbox.js";
 import { CacheContext } from "@/library/cache/cacheContext.js";
 import { importCardPack, importCharacterPack, importExtension, importMode } from "./import.js";
 import { loadCard, loadCardPile, loadCharacter, loadExtension, loadMode, loadPlay } from "./loading.js";
+import { characterSort } from "../../character/collab/sort.js";
 
 // 无名杀，启动！
 export async function boot() {
@@ -40,6 +41,18 @@ export async function boot() {
 	setOnError({ lib, game, get, _status });
 
 	await loadConfig();
+
+	// 新配置默认关闭联动包中的动画、十二生肖和喵喵杀分类；
+	// 只为尚无禁将记录的模式初始化，保留玩家已有的手动选择。
+	const disabledCollabCharacters = ["collab_anime", "collab_shengxiao", "collab_hajimi"].flatMap(name => characterSort[name] ?? []);
+	for (const mode of lib.config.all.stockmode) {
+		if (mode === "connect") continue;
+		for (const key of [`${mode}_banned`, `connect_${mode}_banned`]) {
+			if (typeof lib.config[key] === "undefined") {
+				lib.config[key] = disabledCollabCharacters.slice();
+			}
+		}
+	}
 
 	// 兼容原有鏖战布尔设置，保持原规则并正确显示新的选择菜单。
 	for (const mode of ["guozhan", "connect"]) {

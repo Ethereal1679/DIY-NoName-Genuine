@@ -2,6 +2,7 @@ import { lib, game, ui, get, _status } from "noname";
 
 export const type = "mode";
 
+
 /**
  * The connect mode owns the first-run lobby shown before the regular online
  * room list is created. It works in the browser, Electron and mobile shell.

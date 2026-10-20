@@ -3658,19 +3658,19 @@ decadeModule.import(function(lib, game, ui, get, ai, _status){
 			content:function(){
 				'step 0'
 				var choices=Array.from({length:trigger.player.countCards('h')+1}).map((_,i)=>get.cnNumber(i,true));
-				var type=get.type2(trigger.card,trigger.player);
-				player.chooseControl(choices).set('prompt','镇锋：猜测其手牌中的'+get.translation(type)+'牌数').set('ai',()=>{
+				event.zhenfengType=get.type2(trigger.card,trigger.player);
+				player.chooseControl(choices).set('prompt','镇锋：猜测其手牌中的'+get.translation(event.zhenfengType)+'牌数').set('ai',()=>{
 					return _status.event.choice;
 				}).set('choice',function(){
-					var num=trigger.player.countCards('h',card=>get.type2(card)==type);
-					var knownNum = trigger.player.countKnownCards(_status.event.player,card=>get.type2(card)==type);
+					var num=trigger.player.countCards('h',card=>get.type2(card)==event.zhenfengType);
+					var knownNum = trigger.player.countKnownCards(_status.event.player,card=>get.type2(card)==event.zhenfengType);
 					if(trigger.player.isAllCardsKnown(_status.event.player)){
 						return knownNum;
 					}
 					var restNum = num - knownNum;
 					var numx;
-					if(type=='basic') numx=num+Math.floor(Math.random()*restNum+1);
-					else if(type=='trick'){
+					if(event.zhenfengType=='basic') numx=num+Math.floor(Math.random()*restNum+1);
+					else if(event.zhenfengType=='trick'){
 						if(num>2) numx=2;
 						else numx=1;
 						if(Math.random()<0.5){
@@ -3687,12 +3687,11 @@ decadeModule.import(function(lib, game, ui, get, ai, _status){
 				'step 1'
 				var guessedNum=result.index;
 				player.chat('我猜'+get.cnNumber(guessedNum)+'张');
-				game.log(player,'猜测',trigger.player,'有',get.cnNumber(guessedNum)+'张'+get.translation(type)+'牌');
+				game.log(player,'猜测',trigger.player,'有',get.cnNumber(guessedNum)+'张'+get.translation(event.zhenfengType)+'牌');
 				event.guessedNum=guessedNum;
 				game.delay();
 				'step 2'
-				var type=get.type2(trigger.card,trigger.player);
-				var count=trigger.player.countCards('h',card=>get.type2(card)==type);
+				var count=trigger.player.countCards('h',card=>get.type2(card)==event.zhenfengType);
 				var guessedNum=event.guessedNum;
 				if(count==guessedNum){
 					player.popup('猜测正确','wood');
