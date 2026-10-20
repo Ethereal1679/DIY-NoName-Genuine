@@ -184,7 +184,13 @@ lib.skill._jd_hrhxs={
 	
 	}	
     
-       if (get.mode() != 'connect' && lib.config.jindutiao != "off" && (lib.config.jindutiao == "jieshutg" || lib.config.jindutiao == "jieshubtg")) {
+// Extension settings are stored under the extension-prefixed key. Keep
+// the old global key as a fallback for configurations saved by older versions.
+const getJindutiaoMode = function() {
+  return lib.config.extension_手杀ui_jindutiao ?? lib.config.jindutiao ?? config.jindutiao ?? "jieshutg";
+};
+
+if (get.mode() != 'connect' && getJindutiaoMode() != "off" && (getJindutiaoMode() == "jieshutg" || getJindutiaoMode() == "jieshubtg")) {
 
 //游戏结束消失
 lib.onover.push(function(bool){        
@@ -239,7 +245,7 @@ if (document.getElementById("jindutiao")) {
 									if (boxTime.data == 0) {
 										clearInterval(window.timer);
 										boxContent.remove();
-										if (lib.config.jindutiao == "jieshutg") {
+										if (getJindutiaoMode() == "jieshutg") {
 											ui.click.auto();
 										}
 									}
@@ -1437,7 +1443,7 @@ game.as_removeImage=function(){
 		"jindutiao": {
 			"name": "进度条(回合内)",
 			"intro": "自己回合内显示进度条，可选择烧条结束后是否托管，手动重启后生效。<br>注意：开启后可在游戏中切换烧条结束后是否托管，即时生效。",
-			"init":lib.config.jindutiao === undefined ? "jieshutg" : lib.config.jindutiao, // zsy修改，默认off改为jieshutg
+			"init":lib.config.extension_手杀ui_jindutiao ?? lib.config.jindutiao ?? "jieshutg", // 默认开启；兼容旧版全局配置
 			"item": {
 				"off":"关闭",
 				"jieshutg":"烧条结束托管",
