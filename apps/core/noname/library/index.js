@@ -4395,7 +4395,7 @@ export class Library {
 				show_time: {
 					name: "显示时间",
 					intro: "在屏幕顶部显示当前时间",
-					init: false,
+					init: true, // 默认生效
 					unfrequent: true,
 					onclick(bool) {
 						game.saveConfig("show_time", bool);
@@ -4435,7 +4435,7 @@ export class Library {
 				},
 				show_time3: {
 					name: "显示游戏时间",
-					init: false,
+					init: true, // 默认生效
 					unfrequent: true,
 				},
 				show_statusbar_android: {
