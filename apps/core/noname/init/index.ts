@@ -1012,6 +1012,10 @@ function setWindowListener() {
 				lib.node.debug();
 			}
 		} else {
+			const target = e.target;
+			if (e.isComposing || (target instanceof HTMLElement && (target.isContentEditable || target.closest("input, textarea, select")))) {
+				return;
+			}
 			game.closePopped();
 			const dialogs = document.querySelectorAll("#window>.dialog.popped:not(.static)");
 			for (let i = 0; i < dialogs.length; i++) {

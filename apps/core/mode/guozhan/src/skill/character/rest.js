@@ -20756,10 +20756,17 @@ export default {
 		trigger: { player: "useCardAfter" },
 		direct: true,
 		isLveshanCard(card) {
-			if (!card) return false;
-			if (card.name == "lveshan" || card.viewAs == "lveshan") return true;
-			if (Array.isArray(card.cards)) {
-				return card.cards.some(cardx => lib.skill._jiubian_lveshan_gain.isLveshanCard(cardx));
+			const pending = [card];
+			const visited = new Set();
+			while (pending.length) {
+				const current = pending.pop();
+				// Physical and virtual cards can reference themselves or each other.
+				if (!current || visited.has(current)) continue;
+				visited.add(current);
+				if (current.name == "lveshan" || current.viewAs == "lveshan") return true;
+				if (Array.isArray(current.cards)) {
+					for (const child of current.cards) pending.push(child);
+				}
 			}
 			return false;
 		},

@@ -2528,7 +2528,7 @@ export class Library {
 				cardback_style: {
 					name: "卡背样式",
 					intro: "设置背面朝上的卡牌的样式",
-					init: "手杀",
+					init: "原版",
 					item: {
 						// wood:'木纹',
 						// music:'音乐',

@@ -200,10 +200,16 @@ export default () => {
 				const input = createElement("input", "lan-connect-input", undefined, form);
 				input.type = "text";
 				input.autocomplete = "url";
+				input.inputMode = "url";
+				input.autocapitalize = "off";
 				input.spellcheck = false;
 				input.placeholder = "例如 192.168.1.20:8082";
 				input.setAttribute("aria-label", "联机地址");
 				label.htmlFor = input.id = `connect-address-${Date.now()}`;
+				// Keep game-wide hotkeys from consuming characters while editing the address.
+				for (const eventName of ["keydown", "keypress", "keyup"]) {
+					input.addEventListener(eventName, event => event.stopPropagation());
+				}
 
 				const actions = createElement("div", "lan-connect-actions", undefined, form);
 				const connectButton = createElement("button", "lan-connect-primary", "连接", actions);
@@ -272,6 +278,7 @@ export default () => {
 				let scanId = 0;
 				const scanHostAddresses = async ({ fillInput = false, replaceLoopback = false } = {}) => {
 					const currentScan = ++scanId;
+					const previousInput = input.value;
 					refresh.disabled = true;
 					refresh.classList.add("scanning");
 					setStatus("正在扫描主机网卡…", "busy");
@@ -290,7 +297,7 @@ export default () => {
 						hostAddresses.zerotier = detected.zerotier;
 						renderHostAddresses();
 
-						if (fillInput || (replaceLoopback && isLoopbackEndpoint(input.value))) {
+						if (input.value === previousInput && document.activeElement !== input && (fillInput || (replaceLoopback && isLoopbackEndpoint(input.value)))) {
 							input.value = localEndpoint();
 							updateInfo();
 						}

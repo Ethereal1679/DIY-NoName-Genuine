@@ -219,7 +219,11 @@ table {
 	font-family: Arial, sans-serif;
 	font-size: 22px;
 	letter-spacing: 0.02em;
-	text-align: center;
+	text-align: left;
+	cursor: text;
+	caret-color: #fff8e8;
+	user-select: text;
+	-webkit-user-select: text;
 }
 .lan-connect-input:focus {
 	border-color: rgba(239, 202, 139, 0.75);

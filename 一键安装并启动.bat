@@ -1,12 +1,12 @@
-:: - 如果找不到 Node.js，使用 winget 安装 Node.js LTS。Node.js 安装包通常会自带 npm。
-:: - 如果找不到 pnpm，执行 npm install -g pnpm 安装 pnpm。
-:: - 检查 Node.js 是否达到 22.12.0。
-:: - 执行 pnpm install，安装项目工作区依赖。
-:: - 下载或准备 Electron 运行文件。
-:: - 构建 @noname/fs 和 Electron。
-:: - 启动 8082 联机服务器以及 Electron 开发环境。
-
 @echo off
+rem - 如果找不到 Node.js，使用 winget 安装 Node.js LTS。Node.js 安装包通常会自带 npm。
+rem - 如果找不到 pnpm，执行 npm install -g pnpm 安装 pnpm。
+rem - 检查 Node.js 是否达到 22.12.0。
+rem - 执行 pnpm install，安装项目工作区依赖。
+rem - 下载或准备 Electron 运行文件。
+rem - 构建 @noname/fs 和 Electron。
+rem - 启动 8082 联机服务器以及 Electron 开发环境。
+
 setlocal
 cd /d "%~dp0"
 set "PATH=%ProgramFiles%\nodejs;%APPDATA%\npm;%PATH%"
