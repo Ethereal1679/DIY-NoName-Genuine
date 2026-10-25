@@ -4741,6 +4741,11 @@ export class Click {
 	rightplayer(e) {
 		//按住Ctrl/Shift右键点击其他角色：投掷草鞋/敬酒
 		if (e && (e.ctrlKey || e.shiftKey) && _status.gameStarted && !game.observe && game.me && this != game.me) {
+			// The document-level contextmenu handler maps right-click to pause.
+			// Stop this event here after handling the throw gesture so it cannot
+			// pause the game a second time or reopen a conflicting dialog.
+			e.preventDefault();
+			e.stopPropagation();
 			var throwEmotionName = e.ctrlKey ? "shoe" : "wine";
 			if (game.online) {
 				game.send("throwEmotion", this, throwEmotionName);

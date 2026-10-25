@@ -2890,55 +2890,68 @@ export class Player extends HTMLDivElement {
 	 * @param { Player } target
 	 * @param { string } name
 	 * @param {*} rotate
+	 * @param {{ offsetX?: number, legacy?: boolean }} [options]
 	 */
-	$throwEmotion(target, name, rotate) {
+	$throwEmotion(target, name, rotate, { offsetX = 0, legacy = false } = {}) {
+		if (!target) return;
 		game.addVideo("throwEmotion", this, [target.dataset.position, name]);
-		var getLeft = function (player) {
-			if (player == game.me && !ui.fakeme && !ui.chess) {
-				return player.getLeft() + player.node.avatar.offsetWidth / 2;
-			}
-			return player.getLeft() + player.offsetWidth / 2;
+		const getLeft = player => player.getLeft() + (player == game.me && !ui.fakeme && !ui.chess ? player.node.avatar.offsetWidth / 2 : player.offsetWidth / 2 + offsetX);
+		const emotion = ui.create.div(".throw-emotion", game.chess ? ui.chess : ui.window);
+		emotion.style.cssText = "position:absolute;width:60px;height:60px;pointer-events:none;z-index:10;transition:none";
+		const image = emotion.appendChild(new Image());
+		image.style.cssText = "position:absolute;left:-30px;top:-30px;width:120px;height:120px;max-width:none;pointer-events:none;transition:none";
+		const asset = `${lib.assetURL}image/emotion/throw_emotion/${name}`;
+		image.src = `${asset}1.png`;
+		const impact = new Image();
+		impact.style.cssText = image.style.cssText;
+		impact.src = `${asset}2.png`;
+		const width = 30 + (game.chess ? 60 : 0);
+		const left = getLeft(this) - width;
+		const top = this.getTop() + this.offsetHeight / 3 - 30;
+		emotion.style.left = `${left}px`;
+		emotion.style.top = `${top}px`;
+		let left2 = getLeft(target) - width;
+		let top2 = target.getTop() + target.offsetHeight / 3 - 30;
+		const spinningThrow = name != "flower" && (["egg", "shoe"].includes(name) || rotate);
+		if (name == "egg") {
+			left2 += target.offsetWidth * (Math.random() * 0.6 - 0.3);
+			top2 = target.getTop() + target.offsetHeight * (0.18 + Math.random() * 0.64) - 30;
+		} else if (spinningThrow && !legacy) {
+			left2 = getLeft(target) / (0.95 + Math.random() * 0.15) - width;
+			top2 = target.getTop() + target.offsetHeight / (1 + Math.random() * 2) - 30;
+		}
+		const deltaX = left2 - left;
+		const deltaY = top2 - top;
+		const destination = `translate(${deltaX}px, ${deltaY}px)`;
+		const arrive = () => {
+			// Flower2 is a sparkle overlay; keep the rose visible underneath it.
+			if (name == "flower") emotion.appendChild(impact);
+			else image.replaceWith(impact);
+			setTimeout(() => emotion.remove(), 1200);
 		};
-		var player = this;
-		var emotion = ui.create.div("", '<div style="text-align:center"> <img src="' + lib.assetURL + "image/emotion/throw_emotion/" + name + '1.png"> </div>', game.chess ? ui.chess : ui.window);
-		emotion.style.width = "60px";
-		emotion.style.height = "60px";
-		emotion.style.pointerEvents = "none";
-		var width = emotion.offsetWidth / 2;
-		var height = emotion.offsetHeight / 2;
-		if (game.chess) {
-			width += 60;
-		}
-		var left = getLeft(player) - width;
-		var top = player.getTop() + player.offsetHeight / 3 - height;
-		emotion.style.left = left + "px";
-		emotion.style.top = top + "px";
-		var left2 = getLeft(target) - width;
-		var top2 = target.getTop() + target.offsetHeight / 3 - height;
-		if (["egg", "flower", "shoe"].includes(name) || rotate) {
-			var num1 = 0.95 + Math.random() * (1.1 - 0.95);
-			var num2 = 1 + Math.random() * (3 - 1);
-			var left2 = getLeft(target) / num1 - width;
-			var top2 = target.getTop() + target.offsetHeight / num2 - height;
+		if (typeof emotion.animate == "function") {
+			const arc = Math.min(100, Math.max(28, Math.hypot(deltaX, deltaY) * 0.12));
+			const frames = [{ transform: "translate(0, 0)" }];
+			if (spinningThrow) frames.push({ transform: `translate(${deltaX / 2}px, ${deltaY / 2 - arc}px) scale(1.06)` });
+			frames.push({ transform: destination });
+			const flight = emotion.animate(frames, { duration: 600, easing: "ease-out" });
+			flight.onfinish = () => {
+				emotion.style.transform = destination;
+				arrive();
+			};
+			if (spinningThrow) {
+				const angle = (Math.random() < 0.5 ? -1 : 1) * (name == "egg" ? 2 + Math.random() : 4) * 360;
+				image.animate([{ transform: "rotate(0deg)" }, { transform: `rotate(${angle}deg)` }], { duration: 600 });
+			}
 		} else {
-			var left2 = getLeft(target) - width;
-			var top2 = target.getTop() + target.offsetHeight / 3 - height;
-		}
-		emotion.style["z-index"] = 10;
-		emotion.style.transform = "translateY(" + (top2 - top) + "px) translateX(" + (left2 - left) + "px)";
-		// @ts-expect-error ignore
-		if (["egg", "flower", "shoe"].includes(name) || rotate) {
-			emotion.firstElementChild.style.transform = "rotate(1440deg)";
+			emotion.style.transition = "transform 600ms ease-out";
+			ui.refresh(emotion);
+			emotion.style.transform = destination;
+			setTimeout(arrive, 600);
 		}
 		if (lib.config.background_audio) {
 			game.playAudio("effect", "throw_" + name + get.rand(1, 2));
 		}
-		setTimeout(function () {
-			emotion.innerHTML = '<div style="text-align:center"> <img src="' + lib.assetURL + "image/emotion/throw_emotion/" + name + '2.png"> </div>';
-			setTimeout(function () {
-				emotion.delete();
-			}, 1200);
-		}, 600);
 	}
 	/**
 	 * @param { boolean } bool
@@ -4275,6 +4288,7 @@ export class Player extends HTMLDivElement {
 		return this;
 	}
 	throwEmotion(target, emotion, rotate) {
+		if (!target || game.online) return;
 		game.broadcastAll(
 			function (player, target, emotion, rotate) {
 				player.$throwEmotion(target, emotion, rotate);
@@ -4284,6 +4298,9 @@ export class Player extends HTMLDivElement {
 			emotion,
 			rotate
 		);
+		if (emotion == "egg" && (this._throwEggCount = ((this._throwEggCount || 0) + 1) % 10) == 0) {
+			this.throwEmotion(target, "shoe");
+		}
 	}
 	emotion(pack, id) {
 		var str = `<img src="##assetURL##image/emotion/${pack}/${id}" width="50" height="50">`;

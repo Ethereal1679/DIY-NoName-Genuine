@@ -535,142 +535,15 @@ content:function(config, pack){
 		};
 	}
 	
-	// 旧版发送交互表情函数
-	// 修改game.js的函数$throwEmotion(target,name,rotate){、throwEmotion(target,emotion,rotate){和throwEmotion:function(target,emotion,rotate){
-	if(lib.config['extension_十周年UI_jiubanjhbq']){
-		lib.element.player.$throwEmotion=function(target,name){
-			game.addVideo('throwEmotion',this,[target.dataset.position,name]);
-			var getLeft=function(player){
-				if(player==game.me&&!ui.fakeme&&!ui.chess) return player.getLeft()+player.node.avatar.offsetWidth/2;
-				
-				// 出牌记录栏靠左显示修复
-				if (lib.config.show_history == "left") return player.getLeft()+player.offsetWidth/2+50;
-				
-				return player.getLeft()+player.offsetWidth/2;
-			};
-			var player=this;
-			var emotion=ui.create.div('','<div style="text-align:center"> <img src="'+lib.assetURL+'image/emotion/throw_emotion/'+name+'1.png"> </div>',game.chess?ui.chess:ui.window);
-			emotion.style.width='60px';
-			emotion.style.height='60px';
-			emotion.style.pointerEvents='none';
-			var width=emotion.offsetWidth/2;
-			var height=emotion.offsetHeight/2;
-			if(game.chess) width+=60;
-			var left=getLeft(player)-width;
-			var top=player.getTop()+player.offsetHeight/3-height;
-			emotion.style.left=left+'px';
-			emotion.style.top=top+'px';
-			var left2=getLeft(target)-width;
-			var top2=target.getTop()+target.offsetHeight/3-height;
-			emotion.style['z-index']=10;
-			emotion.style.transform='translateY('+(top2-top)+'px) translateX('+(left2-left)+'px)';
-			if(lib.config.background_audio) game.playAudio('effect','throw_'+name+get.rand(1,2));
-			setTimeout(function(){
-				emotion.innerHTML=('<div style="text-align:center"> <img src="'+lib.assetURL+'image/emotion/throw_emotion/'+name+'2.png"> </div>');
-				setTimeout(function(){
-					emotion.delete();
-				},1200);
-			},600);
-		};
-		lib.element.player.throwEmotion=function(target,emotion){
-			game.broadcastAll(function(player,target,emotion){
-				player.$throwEmotion(target,emotion);
-			},this,target,emotion);
-		};
-		lib.message.server.throwEmotion=function(target,emotion){
-			if(lib.node.observing.contains(this)) return;
-			var player=lib.playerOL[this.id];
-			if(player){
-				player.throwEmotion(target,emotion);
-			}
-		};
-	}else{
-		// 新版noname\library\element\player.js、noname\library\index.js
-		/**
-		 * @param { Player } target
-		 * @param { string } name
-		 * @param {*} rotate
-		 */
-		lib.element.player.$throwEmotion = function(target, name, rotate) {
-			game.addVideo("throwEmotion", this, [target.dataset.position, name]);
-			var getLeft = function (player) {
-				if (player == game.me && !ui.fakeme && !ui.chess)
-					return player.getLeft() + player.node.avatar.offsetWidth / 2;
-				
-				// 出牌记录栏靠左显示修复
-				if (lib.config.show_history == "left") return player.getLeft() + player.offsetWidth / 2 +50;
-				
-				return player.getLeft() + player.offsetWidth / 2;
-			};
-			var player = this;
-			var emotion = ui.create.div(
-				"",
-				'<div style="text-align:center"> <img src="' +
-					lib.assetURL +
-					"image/emotion/throw_emotion/" +
-					name +
-					'1.png"> </div>',
-				game.chess ? ui.chess : ui.window
-			);
-			emotion.style.width = "60px";
-			emotion.style.height = "60px";
-			emotion.style.pointerEvents = "none";
-			var width = emotion.offsetWidth / 2;
-			var height = emotion.offsetHeight / 2;
-			if (game.chess) width += 60;
-			var left = getLeft(player) - width;
-			var top = player.getTop() + player.offsetHeight / 3 - height;
-			emotion.style.left = left + "px";
-			emotion.style.top = top + "px";
-			var left2 = getLeft(target) - width;
-			var top2 = target.getTop() + target.offsetHeight / 3 - height;
-			if (["egg", "flower", "shoe"].includes(name) || rotate) {
-				var num1 = 0.95 + Math.random() * (1.1 - 0.95);
-				var num2 = 1 + Math.random() * (3 - 1);
-				var left2 = getLeft(target) / num1 - width;
-				var top2 = target.getTop() + target.offsetHeight / num2 - height;
-			} else {
-				var left2 = getLeft(target) - width;
-				var top2 = target.getTop() + target.offsetHeight / 3 - height;
-			}
-			emotion.style["z-index"] = 10;
-			emotion.style.transform = "translateY(" + (top2 - top) + "px) translateX(" + (left2 - left) + "px)";
-			// @ts-ignore
-			if (["egg", "flower", "shoe"].includes(name) || rotate)
-				emotion.firstElementChild.style.transform = "rotate(1440deg)";
-			if (lib.config.background_audio) game.playAudio("effect", "throw_" + name + get.rand(1, 2));
-			setTimeout(function () {
-				emotion.innerHTML =
-					'<div style="text-align:center"> <img src="' +
-					lib.assetURL +
-					"image/emotion/throw_emotion/" +
-					name +
-					'2.png"> </div>';
-				setTimeout(function () {
-					emotion.delete();
-				}, 1200);
-			}, 600);
-		};
-		lib.element.player.throwEmotion = function(target, emotion, rotate) {
-			game.broadcastAll(
-				function (player, target, emotion, rotate) {
-					player.$throwEmotion(target, emotion, rotate);
-				},
-				this,
-				target,
-				emotion,
-				rotate
-			);
-		};
-		lib.message.server.throwEmotion = function (target, emotion, rotate) {
-			if (lib.node.observing.includes(this)) return;
-			var player = lib.playerOL[this.id];
-			if (player) {
-				player.throwEmotion(target, emotion, rotate);
-			}
-		};
-	}
-	
+	// Reuse the core effect, keeping the legacy landing and history offset.
+	const throwEmotionEffect = lib.element.player.$throwEmotion;
+	lib.element.player.$throwEmotion = function (target, name, rotate) {
+		return throwEmotionEffect.call(this, target, name, rotate, {
+			offsetX: lib.config.show_history == "left" ? 50 : 0,
+			legacy: !!lib.config['extension_十周年UI_jiubanjhbq'],
+		});
+	};
+
 	// 富甲天下配置
 	if(game.changeCoin){
 		game.changeCoin = function (num, toast, audio) {
