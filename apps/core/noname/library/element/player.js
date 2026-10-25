@@ -2890,14 +2890,20 @@ export class Player extends HTMLDivElement {
 	 * @param { Player } target
 	 * @param { string } name
 	 * @param {*} rotate
-	 * @param {{ offsetX?: number, legacy?: boolean }} [options]
+	 * @param {{ legacy?: boolean }} [options]
 	 */
-	$throwEmotion(target, name, rotate, { offsetX = 0, legacy = false } = {}) {
+	$throwEmotion(target, name, rotate, { legacy = false } = {}) {
 		if (!target) return;
 		game.addVideo("throwEmotion", this, [target.dataset.position, name]);
-		const getLeft = player => player.getLeft() + (player == game.me && !ui.fakeme && !ui.chess ? player.node.avatar.offsetWidth / 2 : player.offsetWidth / 2 + offsetX);
 		const emotion = ui.create.div(".throw-emotion", game.chess ? ui.chess : ui.window);
-		emotion.style.cssText = "position:absolute;width:60px;height:60px;pointer-events:none;z-index:10;transition:none";
+		emotion.style.cssText = "position:absolute;left:0;top:0;width:60px;height:60px;pointer-events:none;z-index:10;transition:none";
+		const origin = emotion.getBoundingClientRect();
+		const getPosition = (player, x = 0.5, y = 0.5) => {
+			const card = player == game.me && !ui.fakeme && !ui.chess ? player.node.avatar : player;
+			const rect = card.getBoundingClientRect();
+			// Convert the visible card bounds into the effect's coordinates, including arena offsets and zoom.
+			return [(rect.left + rect.width * x - origin.left) * 60 / origin.width - 30, (rect.top + rect.height * y - origin.top) * 60 / origin.height - 30];
+		};
 		const image = emotion.appendChild(new Image());
 		image.style.cssText = "position:absolute;left:-30px;top:-30px;width:120px;height:120px;max-width:none;pointer-events:none;transition:none";
 		const asset = `${lib.assetURL}image/emotion/throw_emotion/${name}`;
@@ -2905,21 +2911,12 @@ export class Player extends HTMLDivElement {
 		const impact = new Image();
 		impact.style.cssText = image.style.cssText;
 		impact.src = `${asset}2.png`;
-		const width = 30 + (game.chess ? 60 : 0);
-		const left = getLeft(this) - width;
-		const top = this.getTop() + this.offsetHeight / 3 - 30;
+		const [left, top] = getPosition(this);
 		emotion.style.left = `${left}px`;
 		emotion.style.top = `${top}px`;
-		let left2 = getLeft(target) - width;
-		let top2 = target.getTop() + target.offsetHeight / 3 - 30;
 		const spinningThrow = name != "flower" && (["egg", "shoe"].includes(name) || rotate);
-		if (name == "egg") {
-			left2 += target.offsetWidth * (Math.random() * 0.6 - 0.3);
-			top2 = target.getTop() + target.offsetHeight * (0.18 + Math.random() * 0.64) - 30;
-		} else if (spinningThrow && !legacy) {
-			left2 = getLeft(target) / (0.95 + Math.random() * 0.15) - width;
-			top2 = target.getTop() + target.offsetHeight / (1 + Math.random() * 2) - 30;
-		}
+		const randomLanding = ["egg", "flower"].includes(name) || (spinningThrow && !legacy);
+		const [left2, top2] = randomLanding ? getPosition(target, 0.1 + Math.random() * 0.8, 0.1 + Math.random() * 0.8) : getPosition(target);
 		const deltaX = left2 - left;
 		const deltaY = top2 - top;
 		const destination = `translate(${deltaX}px, ${deltaY}px)`;

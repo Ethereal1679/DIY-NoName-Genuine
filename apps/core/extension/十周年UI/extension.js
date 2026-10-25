@@ -535,11 +535,10 @@ content:function(config, pack){
 		};
 	}
 	
-	// Reuse the core effect, keeping the legacy landing and history offset.
+	// Reuse the core effect, keeping the legacy landing behavior.
 	const throwEmotionEffect = lib.element.player.$throwEmotion;
 	lib.element.player.$throwEmotion = function (target, name, rotate) {
 		return throwEmotionEffect.call(this, target, name, rotate, {
-			offsetX: lib.config.show_history == "left" ? 50 : 0,
 			legacy: !!lib.config['extension_十周年UI_jiubanjhbq'],
 		});
 	};
