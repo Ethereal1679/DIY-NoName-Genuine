@@ -6,11 +6,6 @@ import remote from "@electron/remote/main/index.js";
 import { LOCAL_HOST, registerLocalProtocol } from "./local-protocol";
 remote.initialize();
 const dirname = path.join(import.meta.dirname, "../");
-createApp({
-	port: 18767,
-	dirname,
-	server: true,
-});
 
 // 获取单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
