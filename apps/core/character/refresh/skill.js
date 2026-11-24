@@ -688,11 +688,11 @@ const skills = {
 				event.next.remove(next);
 				trigger.after.push(next);
 				next.targets = damages;
-				next.setContent(function () {
-					targets.shift().damage();
-					if (targets.length) {
-						event.redo();
-					}
+				next.setContent(async (event, trigger, player) => {
+					const { targets } = event;
+					do {
+						await targets.shift().damage();
+					} while (!event.finished && targets.length);
 				});
 			}
 		},
@@ -1381,7 +1381,7 @@ const skills = {
 			}
 			const cards = target.getCards("h").randomGets(1),
 				card = cards[0];
-			await target.showCards(cards).setContent(function () {});
+			await target.showCards(cards).setContent(async (event, trigger, player) => {});
 			event.dialog = ui.create.dialog(get.translation(target) + "展示的手牌", cards);
 			event.videoId = lib.status.videoId++;
 
@@ -7048,7 +7048,7 @@ const skills = {
 				silent: true,
 				forceDie: true,
 				charlotte: true,
-				content: () => {
+				async content(event, trigger, player) {
 					game.removeGlobalSkill("relongyin_order");
 				},
 			},
@@ -13305,16 +13305,24 @@ const skills = {
 					let result;
 					while (targets.length) {
 						const target = targets.shift();
+						if (!target.isIn()) {
+							continue;
+						}
 						event.target = target;
 
 						// step 0 -> await the choice
 						result = await target
-							.chooseToDiscard("弃置一张牌或失去1点体力")
-							.set("ai", card => 9 - get.value(card))
+							.chooseToDiscard({
+								prompt: "弃置一张牌或失去1点体力",
+								ai: card => 9 - get.value(card),
+							})
 							.forResult();
+						if (!target.isIn()) {
+							continue;
+						}
 
 						// step 1
-						if (!result.bool) {
+						if (!result?.bool) {
 							await target.loseHp();
 						}
 

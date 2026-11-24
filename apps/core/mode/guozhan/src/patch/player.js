@@ -9,6 +9,19 @@ const hasGouniRelation = (player, target) => {
 };
 
 export class PlayerGuozhan extends lib.element.Player {
+	getName(forDialog = false) {
+		const seat = this.getSeatNum();
+		const slots = [this.name1, this.name2].map((name, index) => {
+			const hidden = _status.video ? this.classList.contains(index ? "unseen2_v" : "unseen_v") : this.isUnseen(index);
+			return hidden || !name ? "暗将" : get.translation(name);
+		});
+		const playername = this._tempTranslate || `${seat > 0 ? get.seatTranslation(seat - 1) : "未知座位"}(${slots.join("/")})`;
+		if (!forDialog) {
+			return playername;
+		}
+		return `<span style="font-weight:560"><span data-nature=unknown><span style="letter-spacing:0.1em">${playername}</span></span><br/><span style="color:#FFD700">`;
+	}
+
 	/**
 	 * @type {string}
 	 */
@@ -285,6 +298,7 @@ export class PlayerGuozhan extends lib.element.Player {
 	 * @param { object } info
 	 */
 	setModeState(info) {
+		this.seatNum = info.seatNum;
 		if (info.mode.unseen) {
 			this.classList.add("unseen");
 		}
@@ -302,7 +316,8 @@ export class PlayerGuozhan extends lib.element.Player {
 		this.init(info.name1, info.name2, false);
 		this.name1 = info.name1;
 		this.name = info.name;
-		this.node.name_seat = ui.create.div(".name.name_seat", get.verticalStr(lib.translate[this.name].slice(0, 3)), this);
+		const seat = this.getSeatNum();
+		this.node.name_seat = ui.create.div(".name.name_seat", seat > 0 ? get.seatTranslation(seat - 1) : "未知座位", this);
 		if (info.identityShown) {
 			this.setIdentity(info.identity);
 			this.node.identity.classList.remove("guessing");
@@ -410,33 +425,25 @@ export class PlayerGuozhan extends lib.element.Player {
 		next.player = this;
 		next.target = target;
 		next.num = num;
-		next.setContent(function () {
-			// @ts-expect-error 类型就是这么写的
+		next.setContent(async (event, trigger, player) => {
+			const { target } = event;
 			if (!player.storage.zhibi) {
-				// @ts-expect-error 类型就是这么写的
 				player.storage.zhibi = [];
 			}
-			// @ts-expect-error 类型就是这么写的
 			player.storage.zhibi.add(target);
-			var content,
-				str = get.translation(target) + "的";
-			// @ts-expect-error 类型就是这么写的
+			let content;
+			const str = `${get.translation(target)}的`;
 			if (event.num == 0 || !target.isUnseen(1)) {
-				content = [str + "主将", [[target.name1], "character"]];
-				// @ts-expect-error 类型就是这么写的
+				content = [`${str}主将`, [[target.name1], "character"]];
 				game.log(player, "观看了", target, "的主将");
-				// @ts-expect-error 类型就是这么写的
 			} else if (event.num == 1 || !target.isUnseen(0)) {
-				content = [str + "副将", [[target.name2], "character"]];
-				// @ts-expect-error 类型就是这么写的
+				content = [`${str}副将`, [[target.name2], "character"]];
 				game.log(player, "观看了", target, "的副将");
 			} else {
-				content = [str + "主将和副将", [[target.name1, target.name2], "character"]];
-				// @ts-expect-error 类型就是这么写的
+				content = [`${str}主将和副将`, [[target.name1, target.name2], "character"]];
 				game.log(player, "观看了", target, "的主将和副将");
 			}
-			// @ts-expect-error 类型就是这么写的
-			player.chooseControl("ok").set("dialog", content);
+			await player.chooseControl({ controls: ["ok"], dialog: content });
 		});
 	}
 

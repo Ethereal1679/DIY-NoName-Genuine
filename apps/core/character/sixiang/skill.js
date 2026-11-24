@@ -460,10 +460,10 @@ const skills = {
 				},
 				selectCard: [1, Infinity],
 				position: "h",
-				precontent(event, trigger, player) {
+				async precontent(event, trigger, player) {
 					player
 						.when("useCard")
-						.filter(evt => evt.getParent() == event.getParent())
+						.filter(evt => evt.getParent() === event.getParent())
 						.step(async (event, trigger, player) => {
 							const num = player.countCards("h");
 							if (trigger.targets?.some(target => target.countCards("h") === num)) {
@@ -1544,6 +1544,12 @@ const skills = {
 			},
 			prompt(links, player) {
 				return `将一张装备牌当做${get.translation(links[0][3]) || ""}${get.translation(links[0][2])}使用`;
+			},
+		},
+		ai: {
+			order: 1,
+			result: {
+				player: 0.5,
 			},
 		},
 	},

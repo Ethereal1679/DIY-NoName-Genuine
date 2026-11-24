@@ -972,7 +972,7 @@ export class Create {
 					game
 						.createEvent("giveup", false)
 						.set("includeOut", true)
-						.setContent(function () {
+						.setContent(async (event, trigger, player) => {
 							game.log(player, "投降");
 							player.popup("投降");
 							player.die("nosource").set("_triggered", null).includeOut = true;
@@ -2693,6 +2693,9 @@ export class Create {
 			}
 		}
 		ui.volumn = ui.create.system("♫");
+		if (lib.device === "ios") {
+			ui.volumn.style.display = "none";
+		}
 		lib.setPopped(ui.volumn, ui.click.volumn, 200);
 		// if(lib.config.show_pause) ui.auto.style.marginLeft='10px';
 		if (!lib.config.show_volumn) {

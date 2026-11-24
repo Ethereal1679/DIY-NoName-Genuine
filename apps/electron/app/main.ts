@@ -3,7 +3,7 @@ import { app, BrowserWindow, crashReporter, dialog, Menu, shell } from "electron
 import fs from "fs";
 import path from "path";
 import remote from "@electron/remote/main/index.js";
-import createApp from "@noname/fs";
+import { LOCAL_HOST, registerLocalProtocol } from "./local-protocol";
 remote.initialize();
 const dirname = path.join(import.meta.dirname, "../");
 createApp({
@@ -21,8 +21,10 @@ if (!gotTheLock) {
 
 app.setAppUserModelId("com.libnoname.noname");
 
-//防止32位无名杀的乱码
+// 防止32位无名杀的乱码
 app.setName("无名杀");
+// protocol.handle 内部会 new Headers(request.headers)，非 Latin-1 的 UA 会使其抛错（ERR_UNEXPECTED）
+app.userAgentFallback = app.userAgentFallback.replace("无名杀", "noname");
 
 function setPath(path1: any, path2: any) {
 	app.getPath(path1);
@@ -171,6 +173,7 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
+	if (!import.meta.env.DEV) registerLocalProtocol(dirname);
 	createWindow();
 	app.on("activate", () => {
 		if (BrowserWindow.getAllWindows().length === 0) {

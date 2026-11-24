@@ -1844,7 +1844,7 @@ const skills = {
 				filter: () => !game.hasPlayer(i => i.hasSkill("jxlianpo", null, null, false), true),
 				silent: true,
 				forceDie: true,
-				content: () => {
+				async content(event, trigger, player) {
 					game.removeGlobalSkill("jxlianpo_global");
 				},
 			},
@@ -2072,7 +2072,7 @@ const skills = {
 						return 0;
 					}
 					if (get.attitude(player, target) > 0) {
-						return 10 - Math.min(...es.map(card => get.equipValue(card)));
+						return 5 - Math.min(...es.map(card => get.equipValue(card)));
 					}
 					return Math.max(...es.map(card => get.equipValue(card)));
 				})
@@ -2458,13 +2458,15 @@ const skills = {
 			if (!event) {
 				return true;
 			}
-			if (event.ai) {
-				const ai = event.ai;
+			if (event.ai1 || event.ai) {
+				const ai = event.ai1 || event.ai;
 				const tmp = _status.event;
 				_status.event = event;
 				const result = ai({ name: "shan" }, _status.event.player, event);
 				_status.event = tmp;
-				return result > 0;
+				if (result > 0) {
+					return true;
+				}
 			}
 			const type = event.name === "chooseToRespond" ? "respond" : "use";
 			const evt = event.getParent();

@@ -8414,6 +8414,9 @@ export class Player extends HTMLDivElement {
 		for (var i = 0; i < cards.length; i++) {
 			cards[i].fix();
 			if (gaintag) {
+				if (typeof gaintag === "string") {
+					gaintag = [gaintag];
+				}
 				gaintag.forEach(tag => cards[i].addGaintag(tag));
 			}
 			var sort = lib.config.sort_card(cards[i]);
@@ -15728,7 +15731,7 @@ export class Player extends HTMLDivElement {
 					player.addSkill(skills);
 				}
 			}
-			game.addGlobalSkill("equipEnableSkill");
+			game.addGlobalSkill("_equipEnable");
 		}
 	}
 	$addVirtualJudge(VCard, cards) {

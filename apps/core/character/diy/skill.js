@@ -3998,7 +3998,7 @@ const skills = {
 		},
 		silent: true,
 		forceDie: true,
-		content: () => {
+		async content(event, trigger, player) {
 			game.removeGlobalSkill("nslongyue_ai");
 		},
 	},
@@ -4171,7 +4171,7 @@ const skills = {
 				event.next.remove(next);
 				event.getParent("phase").after.push(next);
 				next.player = player;
-				next.setContent(function () {
+				next.setContent(async (event, trigger, player) => {
 					player.restoreSkill("nsxingchu");
 				});
 			}
@@ -6805,7 +6805,7 @@ const skills = {
 
 						event.list = cards2;
 
-						result = await player.chooseCardButton(event.list, true, "按顺序将牌置于牌堆顶（先选择的在上）", event.list.length).forResult();
+						const result = await player.chooseCardButton(event.list, true, "按顺序将牌置于牌堆顶（先选择的在上）", event.list.length).forResult();
 
 						const list = result.links.slice(0);
 						while (list.length) {

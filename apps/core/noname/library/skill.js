@@ -10,7 +10,8 @@ export default {
 					.getVCards("j", vcard => {
 						if (get.type(vcard) != "delay") {
 							false;
-						} else if (!vcard.storage?.equipEnable) {
+						}
+						if (!vcard.storage?.equipEnable) {
 							return false;
 						}
 						return vcard.cards.some(card => get.type(card) == "equip");
@@ -31,9 +32,10 @@ export default {
 			globalTo(from, to, distance) {
 				let num = to
 					.getVCards("j", vcard => {
-						if (get.type(vcard) != "delay") {
+						if (get.type(vcard) !== "delay") {
 							false;
-						} else if (!vcard.storage?.equipEnable) {
+						}
+						if (!vcard.storage?.equipEnable) {
 							return false;
 						}
 						return vcard.cards.some(card => get.type(card) == "equip");
@@ -52,15 +54,15 @@ export default {
 				return distance + num;
 			},
 			attackRangeBase(player) {
-				const vcards = player
-					.getVCards("j", vcard => {
-						if (get.type(vcard) != "delay") {
-							false;
-						} else if (!vcard.storage?.equipEnable) {
-							return false;
-						}
-						return vcard.cards.some(card => get.type(card) == "equip");
-					});
+				const vcards = player.getVCards("j", vcard => {
+					if (get.type(vcard) !== "delay") {
+						false;
+					}
+					if (!vcard.storage?.equipEnable) {
+						return false;
+					}
+					return vcard.cards.some(card => get.type(card) == "equip");
+				});
 				if (!vcards.length) {
 					return;
 				}
@@ -68,13 +70,16 @@ export default {
 					if (!vcard.cards) {
 						return total;
 					}
-					return total + vcards.reduce((sum, card) => {
-						if (get.type(card) != "equip") {
-							return sum;
-						}
-						let attackFrom = get.info(card)?.distance?.attackFrom || 0;
-						return sum + attackFrom;
-					}, 0);
+					return (
+						total +
+						vcards.reduce((sum, card) => {
+							if (get.type(card) != "equip") {
+								return sum;
+							}
+							let attackFrom = get.info(card)?.distance?.attackFrom || 0;
+							return sum + attackFrom;
+						}, 0)
+					);
 				}, 0);
 				return Math.max(player.getEquipRange(player.getCards("e")), 1 - num);
 			},

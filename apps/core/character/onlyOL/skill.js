@@ -2207,6 +2207,22 @@ const skills = {
 		},
 	},
 	qiexie: {
+		mod: {
+			aiValue(player, card, num) {
+				if (card.name.indexOf("qiexie_") === -1 || get.position(card) !== "e") {
+					return num;
+				}
+				const owner = get.owner(card);
+				if (player !== owner) {
+					return 0;
+				} else if (_status.currentPhase !== player || _status.event.skill !== "cuijue") {
+					return num + 3;
+				}
+			},
+			aiUseful() {
+				return lib.skill.qiexie.mod.aiValue.apply(this, arguments);
+			},
+		},
 		audio: 2,
 		trigger: { player: "phaseZhunbeiBegin" },
 		forced: true,
@@ -2386,7 +2402,11 @@ const skills = {
 					allowMultiple: false,
 					content: lib.element.content.equipCard,
 					toself: true,
-					ai: {},
+					ai: {
+						equipValue(card, player, index, raw) {
+							return lib.skill.qiexie.mod.aiValue(player, card, 2);
+						},
+					},
 					skills: ["qiexie_destroy"],
 				};
 				var maxHp = get.infoMaxHp(info[2]);
@@ -2419,7 +2439,7 @@ const skills = {
 						} else {
 							val *= 0.6;
 						}
-						return (val += skills.length);
+						return lib.skill.qiexie.mod.aiValue(player, card, val + skills.length);
 					};
 				}
 				str += "此牌离开你的装备区后，改为置入剩余武将牌牌堆。";
@@ -11256,9 +11276,12 @@ const skills = {
 				.set("prompt", get.prompt(event.name.slice(0, -5)))
 				.set("prompt2", "你可重铸一张牌。若重铸牌为" + (get.tag(trigger.card, "damage") ? "" : "非") + "伤害类，则" + get.translation(trigger.card) + "对相同目标再结算一次。")
 				.set("ai", card => {
-					const eff = get.event().eff;
-					if (get.tag(card, "damage") === Boolean(eff[0])) {
-						return 6 - get.value(card) + eff[1];
+					const [isDamagCard, eff] = get.event().eff;
+					if (Boolean(get.tag(card, "damage")) === isDamagCard) {
+						if (eff < 0) {
+							return 0;
+						}
+						return 6 - get.value(card) + eff;
 					}
 					return 6 - get.value(card);
 				})

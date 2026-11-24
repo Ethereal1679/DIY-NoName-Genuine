@@ -518,7 +518,7 @@ const skills = {
 						if (!ui.selected.cards?.length) return false;
 						if (ui.selected.targets?.length) return true;
 						const card = ui.selected.cards[0];
-						return lib.filter.cardRecastable(card, player);
+						return lib.filter.cardRecastable(card, get.player());
 					},
 					ai1(card) {
 						const player = get.player();
@@ -7371,7 +7371,29 @@ const skills = {
 							return;
 						}
 						_status.luanchou_judging = true;
-						let eff = [0, 0, 0, get.damageEffect(other, player, player, get.nature(card)) / get.attitude(player, player)];
+						const damageEffect = get.damageEffect(other, player, player, get.nature(card)) / get.attitude(player, player);
+						let eff = [0, 0, 0, damageEffect];
+						const vcard = get.autoViewAs(card);
+						const damageCards = player.getCards("hs", cardx => {
+							if (vcard.cards.some(cardxx => cardxx === cardx)) {
+								return false;
+							}
+							return get.is.damageCard(cardx) && player.canUse(cardx, target);
+						});
+						let recheck = false;
+						if (damageCards.length) {
+							if (card.name == "sha" && damageCards.some(cardx => cardx.name === "sha") && player.getCardUsable(card) > 1) {
+								recheck = true;
+							} else if (damageCards.some(cardx => cardx.name !== "sha")) {
+								recheck = true;
+							}
+						}
+						if (player.hasFriend()) {
+							recheck = true;
+						}
+						if (recheck) {
+							eff = [0.2, 0, 0.3, damageEffect / 10];
+						}
 						delete _status.luanchou_judging;
 						return eff;
 					}
@@ -8744,10 +8766,10 @@ const skills = {
 				.chooseControl({
 					choiceList: ["受到1点伤害", `展示手牌并弃置所有${get.translation(cardType)}牌`],
 					ai(evt, current) {
-						if (get.damageEffect(current, evt.getParent().player, current) >= 0) {
+						if (get.damageEffect(current, evt.player, current) >= 0) {
 							return 0;
 						}
-						const type = evt.cardType;
+						const type = get.event().cardType;
 						const cards = current.getCards("he", card => get.type2(card) === type);
 						if (cards.length === 1) {
 							return 1;

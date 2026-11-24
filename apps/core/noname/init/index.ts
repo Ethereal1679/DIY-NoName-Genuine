@@ -430,25 +430,19 @@ export async function boot() {
 				if (ui.css.hp_stylesheet1) {
 					ui.css.hp_stylesheet1.remove();
 				}
-				ui.css.hp_stylesheet1 = lib.init.sheet(
-					`.hp:not(.text):not(.actcount)[data-condition="high"]>div:not(.lost){background-image:url(${data})}`
-				);
+				ui.css.hp_stylesheet1 = lib.init.sheet(`.hp:not(.text):not(.actcount)[data-condition="high"]>div:not(.lost){background-image:url(${data})}`);
 			},
 			hp_style2(data) {
 				if (ui.css.hp_stylesheet2) {
 					ui.css.hp_stylesheet2.remove();
 				}
-				ui.css.hp_stylesheet2 = lib.init.sheet(
-					`.hp:not(.text):not(.actcount)[data-condition="mid"]>div:not(.lost){background-image:url(${data})}`
-				);
+				ui.css.hp_stylesheet2 = lib.init.sheet(`.hp:not(.text):not(.actcount)[data-condition="mid"]>div:not(.lost){background-image:url(${data})}`);
 			},
 			hp_style3(data) {
 				if (ui.css.hp_stylesheet3) {
 					ui.css.hp_stylesheet3.remove();
 				}
-				ui.css.hp_stylesheet3 = lib.init.sheet(
-					`.hp:not(.text):not(.actcount)[data-condition="low"]>div:not(.lost){background-image:url(${data})}`
-				);
+				ui.css.hp_stylesheet3 = lib.init.sheet(`.hp:not(.text):not(.actcount)[data-condition="low"]>div:not(.lost){background-image:url(${data})}`);
 			},
 			hp_style4(data) {
 				if (ui.css.hp_stylesheet4) {
@@ -475,26 +469,19 @@ export async function boot() {
 			}
 			ui.css.border_stylesheet = lib.init.sheet();
 			ui.css.border_stylesheet.sheet.insertRule(`#window .player>.framebg{display:block;background-image:url("${data}")}`, 0);
-			ui.css.border_stylesheet.sheet.insertRule(
-				".player>.count{z-index: 3 !important;border-radius: 2px !important;text-align: center !important;}",
-				0
-			);
+			ui.css.border_stylesheet.sheet.insertRule(".player>.count{z-index: 3 !important;border-radius: 2px !important;text-align: center !important;}", 0);
 		}),
 		tryLoadCustomStyle("control_style", data => {
 			if (ui.css.control_stylesheet) {
 				ui.css.control_stylesheet.remove();
 			}
-			ui.css.control_stylesheet = lib.init.sheet(
-				`#window .control,.menubutton:not(.active):not(.highlight):not(.red):not(.blue),#window #system>div>div{background-image:url("${data}")}`
-			);
+			ui.css.control_stylesheet = lib.init.sheet(`#window .control,.menubutton:not(.active):not(.highlight):not(.red):not(.blue),#window #system>div>div{background-image:url("${data}")}`);
 		}),
 		tryLoadCustomStyle("menu_style", data => {
 			if (ui.css.menu_stylesheet) {
 				ui.css.menu_stylesheet.remove();
 			}
-			ui.css.menu_stylesheet = lib.init.sheet(
-				`html #window>.dialog.popped,html .menu,html .menubg{background-image:url("${data}");background-size:cover}`
-			);
+			ui.css.menu_stylesheet = lib.init.sheet(`html #window>.dialog.popped,html .menu,html .menubg{background-image:url("${data}");background-size:cover}`);
 		}),
 	];
 
@@ -640,6 +627,18 @@ export async function boot() {
 	game.loop();
 }
 
+async function readExtensionInfoName(infoFile: URL): Promise<string> {
+	const relativePath = get.relativePath(infoFile);
+	try {
+		if ((await game.promises.checkFile(relativePath)) != 1) return "";
+		const info = JSON.parse(await game.promises.readFileAsText(relativePath));
+		return typeof info?.name == "string" ? info.name : "";
+	} catch (error) {
+		console.warn(`扩展 info.json 读取失败：${relativePath}`, error);
+		return "";
+	}
+}
+
 async function getExtensionList() {
 	if (localStorage.getItem(lib.configprefix + "disable_extension")) return [];
 
@@ -688,6 +687,7 @@ async function getExtensionList() {
 		const [extFolders] = await game.promises.getFileList(get.relativePath(extensionPath));
 
 		const unimportedExtensions = extFolders.filter(folder => !extensions.includes(folder) && !config.get("all").plays.includes(folder));
+		const misnamedExtensions: [dir: string, ext: string][] = [];
 
 		const promises = unimportedExtensions.map(async ext => {
 			const path = new URL(`./${ext}/`, extensionPath);
@@ -695,6 +695,12 @@ async function getExtensionList() {
 			const tsFile = new URL("./extension.ts", path);
 
 			if ((await game.promises.checkFile(get.relativePath(file))) == 1 || (await game.promises.checkFile(get.relativePath(tsFile))) == 1) {
+				// 扩展的配置项与资源路径均以扩展名为准，文件夹名不一致时无法正常工作，不予导入
+				const infoName = await readExtensionInfoName(new URL("./info.json", path));
+				if (infoName && infoName !== ext) {
+					misnamedExtensions.push([ext, infoName]);
+					return;
+				}
 				extensions.push(ext);
 				toLoad.push(ext);
 				if (!config.has(`extension_${ext}_enable`)) {
@@ -705,6 +711,12 @@ async function getExtensionList() {
 		await Promise.allSettled(promises);
 
 		await game.promises.saveConfig("extensions", extensions);
+
+		if (misnamedExtensions.length) {
+			const lines = misnamedExtensions.map(([folder, name]) => `${folder} → ${name}${extFolders.includes(name) ? "（已存在同名文件夹）" : ""}`);
+			console.warn("以下扩展的文件夹名与扩展名不一致，未自动导入：", misnamedExtensions);
+			alert(`以下扩展的文件夹名与扩展名不一致，未自动导入。\n请将文件夹改为对应的扩展名后重启游戏：\n${lines.join("\n")}`);
+		}
 	} else if (searchParamsImportExtension) {
 		extensions.push(searchParamsImportExtension);
 		toLoad.push(searchParamsImportExtension);
@@ -1147,10 +1159,7 @@ function createTouchDraggedFilter() {
 		if (_status.dragged) {
 			return;
 		}
-		if (
-			Math.abs(e.touches[0].clientX / game.documentZoom - this.startX) > 10 ||
-			Math.abs(e.touches[0].clientY / game.documentZoom - this.startY) > 10
-		) {
+		if (Math.abs(e.touches[0].clientX / game.documentZoom - this.startX) > 10 || Math.abs(e.touches[0].clientY / game.documentZoom - this.startY) > 10) {
 			_status.dragged = true;
 		}
 	});
@@ -1161,11 +1170,7 @@ function createTouchDraggedFilter() {
  *
  * 实际上但凡有重载都不会抽象
  */
-async function tryLoadCustomStyle(
-	id: string,
-	keys: (data: string) => void | Record<string, (data: string) => void>,
-	fallback?: () => void
-): Promise<void> {
+async function tryLoadCustomStyle(id: string, keys: (data: string) => void | Record<string, (data: string) => void>, fallback?: () => void): Promise<void> {
 	if (typeof keys === "function") {
 		keys = {
 			[id]: keys,

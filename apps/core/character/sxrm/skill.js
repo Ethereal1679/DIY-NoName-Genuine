@@ -589,7 +589,6 @@ const skills = {
 						const { targets } = get.event();
 						return !targets?.includes(target);
 					},
-					forced: true,
 					ai(target) {
 						const player = get.player();
 						const att = get.attitude(player, target);
@@ -1127,7 +1126,7 @@ const skills = {
 						forced: true,
 						ai(button) {
 							const { player, target } = get.event();
-							return -target.getUseValue({ name: button.link[2], nature: button.link[3] });
+							return target.getUseValue({ name: button.link[2], nature: button.link[3] }) * get.sgnAttitude(player, target);
 						},
 					})
 					.set("target", targetx)
@@ -2556,7 +2555,6 @@ const skills = {
 			return game.hasPlayer(current => current != player && player.canUse(card, current));
 		},
 		async cost(event, trigger, player) {
-			const card = new lib.element.VCard({ name: "huogong", isCard: true });
 			event.result = await player
 				.chooseTarget(
 					get.prompt2(event.skill),
@@ -2566,7 +2564,7 @@ const skills = {
 					},
 					[1, 4]
 				)
-				.set("huogong", card)
+				.set("huogong", get.autoViewAs({ name: "huogong", isCard: true, storage: { sxrmhuoe: true } }, []))
 				.set("ai", target => {
 					const { huogong, player } = get.event();
 					return get.effect(target, huogong, player, player);
@@ -2574,17 +2572,30 @@ const skills = {
 				.forResult();
 		},
 		async content(event, trigger, player) {
-			const card = new lib.element.VCard({ name: "huogong", isCard: true, storage: { huoe: true } }),
+			const card = get.autoViewAs({ name: "huogong", isCard: true, storage: { sxrmhuoe: true } }, []),
 				targets = event.targets;
 			player.addTempSkill("sxrmhuoe_effect");
 			const next = player.useCard(card, targets);
 			await next;
 			player.removeSkill("sxrmhuoe_effect");
+			const names = ["huogong", "useCard"];
 			const cards = game
 				.getGlobalHistory("everything", evt => {
-					return evt.name == "showCards" && evt.getParent(evtx => evtx == next, true);
+					if (evt.name !== "showCards") {
+						return false;
+					}
+					for (const i in names) {
+						const evtx = evt.getParent(Number(i) + 1);
+						if (evtx.name !== names[i] || evtx.player !== player) {
+							return false;
+						} else if (evtx.name === "useCard" && evtx !== next) {
+							return false;
+						}
+					}
+					return true;
 				})
-				.reduce((arr, evt) => arr.concat(evt.cards ?? []), []);
+				.reduce((arr, evt) => arr.concat(evt.cards ?? []), [])
+				.unique();
 			if (!cards.length) {
 				return;
 			}
@@ -2605,14 +2616,31 @@ const skills = {
 						owner = get.owner(card);
 					if (!owner) {
 						await target.gain(card, "gain2");
-					} else if (target != owner) {
-						await owner.give(card, target, true);
+					} else if (target !== owner) {
+						await target.gain(card, owner, "give");
 					}
 				}
 			}
 			if (num < 13) {
 				await player.loseHp();
 			}
+		},
+		ai: {
+			effect: {
+				player(card, player, target, result1) {
+					if (card.name !== "huogong" || !card.storage?.sxrmhuoe) {
+						return;
+					}
+					if (player === target || get.attitude(player, target) > 0 || !target.hasCards("h")) {
+						return;
+					}
+					if (result1 < 0) {
+						return -1;
+					} else if (result1 === 0) {
+						return [1, 1];
+					}
+				},
+			},
 		},
 		subSkill: {
 			effect: {
@@ -4581,19 +4609,29 @@ const skills = {
 			}
 		},
 		ai: {
-			order: 3,
+			order(skill, player) {
+				//场上存在至少两名态度较为明确的角色才考虑发动技能
+				if (game.countPlayer(current => current !== player && get.attitude(player, current) !== 0) > 1) {
+					return 1;
+				}
+				return 0;
+			},
 			result: {
-				target(player, target) {
-					if (target == player) {
-						return 0.1;
-					}
-					return -2;
-				},
 				player(player, target) {
 					if (player.hp > 2 && player.countCards("h") > 2) {
 						return 1;
 					}
 					return 0;
+				},
+				target(player, target) {
+					//尽量不选择态度不明的角色
+					if (get.attitude(player, target) === 0) {
+						return 0;
+					}
+					if (target == player) {
+						return 0.1;
+					}
+					return -2;
 				},
 			},
 		},
