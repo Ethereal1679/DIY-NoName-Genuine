@@ -9,7 +9,9 @@ export default function nodeReady({ lib, game, get, _status, ui }) {
 			const path = require("path");
 			const electronApp = require("@electron/remote").app;
 			if (!electronApp.isPackaged) {
-				window.__dirname = path.resolve(electronApp.getAppPath(), "../../../core");
+				// getAppPath() may point to apps/electron or the compiled dist/app entry directory.
+				const corePath = path.resolve(electronApp.getAppPath(), "../core");
+				window.__dirname = require("fs").existsSync(path.join(corePath, "noname.js")) ? corePath : path.resolve(electronApp.getAppPath(), "../../../core");
 			} else if (window.process.platform === "darwin") {
 				//@ts-ignore
 				window.__dirname = path.join(window.process.resourcesPath, "app");

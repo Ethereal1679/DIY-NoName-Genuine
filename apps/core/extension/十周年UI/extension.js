@@ -23138,25 +23138,28 @@ precontent:function(){
 			this.js(decadeUIPath + 'dynamicSkin.js');
 			this.js(decadeUIPath + 'menu.js');
 			
-			// setTimeout(function () {
-				// Show-K修复版搬运
-				const decadeExtCardImage = lib.decade_extCardImage || (lib.decade_extCardImage = {});
-				if(lib.node&&lib.node.fs) new Promise((resolve, reject) => lib.node.fs.readdir(`${__dirname}/${decadeUIPath}image/card/`, (errnoException, files) => {
+			// Show-K修复版搬运
+			const decadeExtCardImage = lib.decade_extCardImage || (lib.decade_extCardImage = {});
+			const onCardImageError = error => console.warn('十周年UI：无法读取卡牌美化素材目录，保留默认卡图。', error);
+			if(lib.node&&lib.node.fs) {
+				// 文件系统路径不能拼接可能包含 URL 的 decadeUIPath。
+				new Promise((resolve, reject) => lib.node.fs.readdir(lib.path.join(__dirname, 'extension', extensionName, 'image', 'card'), (errnoException, files) => {
 					if (errnoException) reject(errnoException);
 					else resolve(files);
 				})).then(files => files.forEach(file => {
 					const fileName = lib.path.parse(file).name;
 					if (!decadeExtCardImage[fileName]) decadeExtCardImage[fileName] = `${decadeUIPath}image/card/${file}`;
-				}));
-				else if (typeof resolveLocalFileSystemURL == 'function') new Promise((resolve, reject) => {
+				})).catch(onCardImageError);
+			} else if (typeof resolveLocalFileSystemURL == 'function') {
+				new Promise((resolve, reject) => {
 					resolveLocalFileSystemURL(`${decadeUIResolvePath}image/card/`, resolve, reject);
 				}).then(directoryEntry => new Promise((resolve, reject) => {
 					directoryEntry.createReader().readEntries(resolve, reject);
 				})).then(entries => entries.forEach(entry => {
 					const entryName = entry.name, fileName = lib.path.parse(entryName).name;
 					if (!decadeExtCardImage[fileName]) decadeExtCardImage[fileName] = `${decadeUIPath}image/card/${entryName}`;
-				}));
-			// }, 110);
+				})).catch(onCardImageError);
+			}
 			
 			return this;
 		};
