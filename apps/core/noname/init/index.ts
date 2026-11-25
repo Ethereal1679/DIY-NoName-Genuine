@@ -662,22 +662,6 @@ async function getExtensionList() {
 
 	const extensions: string[] = config.get("extensions");
 	const toLoad: string[] = [];
-	const bundledExtensions: string[] = config.get("all").bundledextension ?? [];
-	let bundledExtensionsChanged = false;
-
-	// Bundled legacy extensions must stay discoverable even when an existing
-	// profile predates them or has automatic extension importing disabled.
-	for (const extension of bundledExtensions) {
-		if (extensions.includes(extension)) continue;
-		extensions.push(extension);
-		bundledExtensionsChanged = true;
-		if (!config.has(`extension_${extension}_enable`)) {
-			await game.promises.saveConfig(`extension_${extension}_enable`, false);
-		}
-	}
-	if (bundledExtensionsChanged) {
-		await game.promises.saveConfig("extensions", extensions);
-	}
 
 	toLoad.addArray(config.get("plays").filter(i => config.get("all").plays.includes(i)));
 	toLoad.addArray(extensions);
@@ -845,6 +829,8 @@ function initSheet() {
 async function loadConfig() {
 	lib.config = await lib.init.promises.json(lib.assetURL + "game/config.json");
 	lib.configOL = {};
+	const bundledExtensions: string[] = config.get("all").bundledextension ?? [];
+	const bundledExtensionDefaults = new Map(bundledExtensions.map(extension => [extension, config.get(`extension_${extension}_enable`) === true]));
 
 	if (!window.indexedDB) {
 		throw new Error("您的环境不支持indexedDB，无法保存配置");
@@ -928,6 +914,24 @@ async function loadConfig() {
 		} else {
 			config.set(name, result[name]);
 		}
+	}
+
+	// 在加载扩展前保存内置扩展的默认状态，首次启动即可启用 UI；保留玩家已保存的开关。
+	// 使用项目自带的列表，避免旧配置中的 all 覆盖后遗漏内置扩展。
+	const extensions: string[] = config.get("extensions");
+	let extensionsChanged = !Object.hasOwn(result, "extensions");
+	for (const [extension, enabled] of bundledExtensionDefaults) {
+		if (!extensions.includes(extension)) {
+			extensions.push(extension);
+			extensionsChanged = true;
+		}
+		const key = `extension_${extension}_enable`;
+		if (!Object.hasOwn(result, key)) {
+			await game.promises.saveConfig(key, enabled);
+		}
+	}
+	if (extensionsChanged) {
+		await game.promises.saveConfig("extensions", extensions);
 	}
 
 	config.get("all").characters = [];

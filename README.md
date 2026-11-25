@@ -70,7 +70,7 @@ ctrl + shift + r
 
 添加主机的`network id`
 
-![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/other_devices.jpg)
+![Other Device](/readme_images/other_devices.jpg)
 
 
 # 5. demo
@@ -84,6 +84,11 @@ ctrl + shift + r
 添加手杀风格玉龙指示线extension：
 ![point line](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/pointing_line.jpg)
 
+
+**--2026.11.25**
+
+添加逼(迫)真砸蛋特效extension：
+![eggs](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/eggs_image.png)
 
 # 7. Logs F&P (Frequent Problems)
 经常性遇到下面的问题：
