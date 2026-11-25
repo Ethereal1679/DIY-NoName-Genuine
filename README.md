@@ -18,7 +18,7 @@ UI美化插件来自：https://github.com/lieren2023/noname-for-dummies/tree/mai
 
 双击`一键启动.bat`，一键检测当前安装环境，一键安装。下面是成功一键启动的cli：
 
-![成功启动](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/success_cli_image.png)
+![成功启动](/readme_images/success_cli_image.png)
 
 双击`一键清理旧占用进程.bat`，一键清理过去重复启动导致的端口以及进程占用的问题，非必要可以不使用，仅作调试。
 
@@ -48,7 +48,7 @@ ctrl + shift + r
 # 4.1. 局域网联机
 局域网联机在联机配置的时候，输入主机的IP地址即可，默认联机端口:`8082`
 
-![Device Guide](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/connect_image.png)
+![Device Guide](/readme_images/connect_image.png)
 
 
 # 4.2. 非局域网联机
@@ -62,7 +62,7 @@ ctrl + shift + r
 ## 4.2.1. 主机
 主机添加其他人设备的`device id`：
 
-![Device Guide](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/device_add_guide.png)
+![Device Guide](/readme_images/device_add_guide.png)
 
 
 ## 4.2.2. 其他人的设备
@@ -75,25 +75,25 @@ ctrl + shift + r
 
 # 5. demo
 更多DEMO通过b站视频发布：https://www.bilibili.com/video/BV1H8pR6DEv7/?vd_source=dbf0a5b21ee3e608136d2de2f7aa4035
-![Other Device](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/demo_image1.png)
+![Other Device](/readme_images/demo_image1.png)
 
 
 # 6. 重要更新日志
 **--2026.10.20**
 
 添加手杀风格玉龙指示线extension：
-![point line](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/pointing_line.jpg)
+![point line](/readme_images/pointing_line.jpg)
 
 
 **--2026.11.25**
 
 添加逼(迫)真砸蛋特效extension：
-![eggs](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/eggs_image.png)
+![eggs](/readme_images/eggs_image.png)
 
 # 7. Logs F&P (Frequent Problems)
 经常性遇到下面的问题：
 
-![alt text](https://github.com/Ethereal1679/DIY-NoName-Genuine/blob/main/readme_images/startup_issues.png)
+![alt text](/readme_images/startup_issues.png)
 无视风险，重启加载游戏即可。
 
 但是这个bug目前已经修了 --2026.10.12
